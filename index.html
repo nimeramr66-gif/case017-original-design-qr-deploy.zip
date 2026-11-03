@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050d15">
+<title>الظل الأخير | القضية 017</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="#" data-h="home" aria-label="الرئيسية">
+    <svg class="seal" viewBox="0 0 60 60" aria-hidden="true"><circle cx="30" cy="30" r="28" fill="#0a1824" stroke="#c7a16a" stroke-width="2"/><circle cx="30" cy="30" r="23" fill="none" stroke="#c7a16a" stroke-opacity=".4"/><circle cx="30" cy="22" r="6" fill="#c7a16a"/><path d="M16 46q2-15 14-16t14 16z" fill="#c7a16a"/></svg>
+    <span class="bt"><b>THE LAST SHADOW</b><small>CASE FILE 017</small></span>
+  </a>
+  <nav class="topnav" aria-label="التنقل الرئيسي">
+    <button data-h="home" class="on">الرئيسية</button>
+    <button data-h="overview">ملف القضية</button>
+    <button data-h="people">المشتبه بهم</button>
+    <button data-h="evidence">الأدلة</button>
+    <button data-h="events">الخط الزمني</button>
+    <button data-h="documents">الدليل</button>
+  </nav>
+  <div class="userchip hidden" id="userchip">
+    <span class="av" id="av">م</span><span class="ut"><b id="uname">المحقق</b><small id="ulvl">محقق ميداني</small></span>
+    <button class="ib" id="goSet" aria-label="الإعدادات">⚙</button><button class="ib" id="logout2" aria-label="تسجيل الخروج">⇥</button>
+  </div>
+</header>
+
+<main>
+<!-- ===================== البوابة ===================== -->
+<section id="gate" class="gate">
+  <div class="hero">
+    <svg class="scene" viewBox="0 0 1440 780" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#040b13"/><stop offset=".6" stop-color="#0d2233"/><stop offset="1" stop-color="#1d3d52"/></linearGradient>
+        <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16242f"/><stop offset="1" stop-color="#04080d"/></linearGradient>
+        <radialGradient id="lamp"><stop offset="0" stop-color="#ffe9b8" stop-opacity=".95"/><stop offset=".35" stop-color="#ffd58a" stop-opacity=".28"/><stop offset="1" stop-color="#ffd58a" stop-opacity="0"/></radialGradient>
+        <linearGradient id="refl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd58a" stop-opacity=".28"/><stop offset="1" stop-color="#ffd58a" stop-opacity="0"/></linearGradient>
+        <pattern id="corr" width="10" height="10" patternUnits="userSpaceOnUse"><rect width="10" height="10" fill="#1a2934"/><rect width="3" height="10" fill="#223644"/></pattern>
+      </defs>
+      <rect width="1440" height="780" fill="url(#sky)"/>
+      <!-- أفق بعيد -->
+      <g fill="#102a3b" opacity=".8"><rect x="300" y="395" width="90" height="85"/><rect x="420" y="410" width="60" height="70"/><rect x="560" y="400" width="120" height="80"/><rect x="760" y="415" width="70" height="65"/></g>
+      <!-- مستودعات يسار -->
+      <g>
+        <path d="M-20 500V330l130-34 130 34v170z" fill="url(#corr)"/>
+        <path d="M210 500V350l120-30 120 30v150z" fill="url(#corr)" opacity=".92"/>
+        <path d="M420 500V380l90-22 90 22v120z" fill="url(#corr)" opacity=".8"/>
+        <rect x="40" y="400" width="130" height="100" fill="#0a131b"/>
+        <rect x="250" y="418" width="120" height="82" fill="#0a131b"/>
+        <path d="M-20 330l130-34 130 34M210 350l120-30 120 30" stroke="#2f4a5b" stroke-width="3" fill="none"/>
+      </g>
+      <g><circle cx="110" cy="338" r="60" fill="url(#lamp)"/><circle cx="330" cy="358" r="55" fill="url(#lamp)"/><circle cx="510" cy="385" r="45" fill="url(#lamp)"/>
+        <circle cx="110" cy="338" r="4" fill="#fff3d0"/><circle cx="330" cy="358" r="4" fill="#fff3d0"/><circle cx="510" cy="385" r="3.5" fill="#fff3d0"/></g>
+      <!-- رافعات ميناء -->
+      <g stroke="#b8692b" fill="none" stroke-linecap="square">
+        <g opacity=".5" stroke-width="4"><path d="M860 500V300M960 500V300M830 300h260M860 300l50-40 50 40M1090 300h60"/></g>
+        <g stroke-width="8"><path d="M1030 500V250M1190 500V250M1000 250h420M1000 250l95-70 95 70M1000 250L1310 250"/>
+        <path d="M1030 250l80 90M1190 250l-80 90M1110 250v90" stroke-width="3"/>
+        <path d="M1260 500V300M1330 500V300M1240 300h110" stroke-width="5" opacity=".8"/></g>
+        <g stroke-width="2.5" opacity=".7"><path d="M1000 250l60 20-60 20 60 20M1420 250l-60 20 60 20-60 20"/></g>
+      </g>
+      <g fill="#ffdd9a"><circle cx="1095" cy="180" r="3"/><circle cx="1030" cy="252" r="3"/><circle cx="1190" cy="252" r="3"/><circle cx="1000" cy="250" r="3"/></g>
+      <!-- حاويات -->
+      <g>
+        <rect x="880" y="448" width="86" height="52" fill="#6b3b2c"/><rect x="970" y="448" width="86" height="52" fill="#2d5a58"/>
+        <rect x="1060" y="448" width="86" height="52" fill="#44603c"/><rect x="1150" y="448" width="86" height="52" fill="#7a5a2c"/>
+        <rect x="1240" y="448" width="86" height="52" fill="#2c3e5a"/><rect x="1330" y="448" width="110" height="52" fill="#6b3b2c"/>
+        <rect x="925" y="396" width="86" height="52" fill="#2c3e5a"/><rect x="1015" y="396" width="86" height="52" fill="#7a5a2c"/>
+        <rect x="1195" y="396" width="86" height="52" fill="#6b3b2c"/><rect x="1285" y="396" width="86" height="52" fill="#2d5a58"/>
+        <rect x="1105" y="344" width="86" height="52" fill="#44603c"/>
+      </g>
+      <g stroke="#00000055" stroke-width="2"><path d="M880 468h560M880 484h560M925 414h446M925 430h446"/></g>
+      <!-- أرضية مبللة -->
+      <rect y="500" width="1440" height="280" fill="url(#ground)"/>
+      <g opacity=".9"><rect x="95" y="500" width="30" height="240" fill="url(#refl)"/><rect x="315" y="500" width="30" height="220" fill="url(#refl)"/><rect x="498" y="500" width="24" height="190" fill="url(#refl)"/><rect x="1080" y="500" width="40" height="200" fill="url(#refl)" opacity=".5"/></g>
+      <path d="M0 560h1440M0 640h1440" stroke="#2c4658" stroke-opacity=".25"/>
+      <!-- ظل الرجل -->
+      <g fill="#03070b" opacity=".9">
+        <circle cx="905" cy="352" r="25"/>
+        <path d="M865 600l8-205q32-22 64 0l8 205z"/>
+        <path d="M873 590h60l4 190h-26l-6-130-6 130h-26z"/>
+      </g>
+      <path d="M873 395q32-22 64 0" stroke="#c7a16a" stroke-opacity=".35" stroke-width="2" fill="none"/>
+    </svg>
+
+    <div class="hero-inner">
+      <div class="emblem">
+        <svg viewBox="-24 -34 448 468" aria-hidden="true">
+          <defs>
+            <clipPath id="ec"><circle cx="200" cy="200" r="176"/></clipPath>
+            <linearGradient id="esky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b1b29"/><stop offset=".6" stop-color="#25475a"/><stop offset="1" stop-color="#0a131b"/></linearGradient>
+            <linearGradient id="efade" x1="0" y1="0" x2="0" y2="1"><stop offset=".45" stop-color="#05090d" stop-opacity="0"/><stop offset="1" stop-color="#05090d" stop-opacity=".92"/></linearGradient>
+          </defs>
+          <circle cx="200" cy="200" r="196" fill="#07111a" stroke="#c7a16a" stroke-width="7"/>
+          <circle cx="200" cy="200" r="184" fill="none" stroke="#c7a16a" stroke-opacity=".5" stroke-width="1.5"/>
+          <g clip-path="url(#ec)">
+            <rect width="400" height="400" fill="url(#esky)"/>
+            <g fill="#10222f"><path d="M24 300V230l45-16 45 16v70zM120 300v-60l40-14 40 14v60z"/><path d="M270 300V205h10v95zM330 300V205h10v95zM262 205h90" stroke="#b8692b" stroke-width="6" fill="none"/></g>
+            <circle cx="69" cy="222" r="26" fill="#ffd58a" opacity=".35"/>
+            <g fill="#04080c"><circle cx="200" cy="140" r="36"/><path d="M96 400q4-150 104-172 100 22 104 172z"/></g>
+            <path d="M96 400q4-150 104-172 100 22 104 172" fill="none" stroke="#c7a16a" stroke-opacity=".45" stroke-width="2"/>
+            <path d="M178 232l22 40 22-40" fill="none" stroke="#1b2c3a" stroke-width="3"/>
+            <rect width="400" height="400" fill="url(#efade)"/>
+          </g>
+          <g transform="translate(200 -4)"><path d="M-30-27l30-12 30 12v30q0 20-30 30-30-10-30-30z" fill="#0b1824" stroke="#c7a16a" stroke-width="3"/><path d="M0-22v36M-14-12h28M-14-12l-7 14h14zM14-12l-7 14h14z" stroke="#c7a16a" stroke-width="2" fill="none"/></g>
+          <g transform="translate(200 396)"><path d="M-30-12l30-26 30 26v0l-30 26z" fill="none"/><circle r="30" fill="#0b1824" stroke="#c7a16a" stroke-width="3"/><g fill="none" stroke="#c7a16a" stroke-width="2" stroke-linecap="round"><path d="M-14 8q-2-18 14-20t14 20"/><path d="M-8 10q-1-10 8-11t8 11"/><path d="M-3 12q0-5 3-5t3 5"/><path d="M-19 2q0-24 19-26"/></g></g>
+        </svg>
+        <div class="etitle"><h1>الظل الأخير</h1><small>القضية رقم : 017</small></div>
+      </div>
+      <p class="tag">الحقيقة لا تختبئ… لكنها لا تظهر من النظرة الأولى.</p>
+      <p class="tag-en" dir="ltr">The truth doesn’t hide… but it doesn’t appear at first sight.</p>
+      <div class="cta">
+        <button type="button" class="btn gold" id="startBtn">ابدأ التحقيق</button>
+        <button type="button" class="btn ghost" id="openBtn">افتح ملف القضية</button>
+      </div>
+    </div>
+
+    <div class="hero-foot">
+      <div class="stamp-paper paper"><span class="stamp">TOP SECRET</span></div>
+      <div class="case-card paper">
+        <small>القضية رقم · CASE NO:</small><b>017</b>
+        <small>الحالة · STATUS:</small>
+        <div class="chips"><i>UNDER</i><i>INVESTIGATION</i></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="access-wrap">
+    <div class="intro">
+      <h2>بوابة المحقق</h2>
+      <p>لكل نسخة مطبوعة من الملف رقم تسلسلي فريد. أدخل اسمك والرقم المطبوع داخل الملف لتفتح النسخة الرقمية من القضية.</p>
+      <p class="fine">يُستخدم كل رقم مرة واحدة فقط، ويرتبط باسم المحقق.</p>
+    </div>
+    <div class="access" id="access">
+      <label>اسم المحقق<input id="name" maxlength="60" placeholder="اكتب اسمك" autocomplete="off"></label>
+      <label>الرقم التسلسلي<input id="serial" dir="ltr" maxlength="23" placeholder="TLS017-XXXXXXXXXXXXXXXX" autocomplete="off" autocapitalize="characters" spellcheck="false"></label>
+      <button class="btn gold block" id="enter">فتح ملف القضية</button>
+      <div id="gateMsg" role="alert"></div>
+      <button class="btn ghost block sm" id="adminOpen">دخول الإدارة</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ملف القضية ===================== -->
+<section id="workspace" class="hidden">
+  <aside>
+    <nav>
+      <button data-v="dash"><i>⌂</i><span><b>لوحة التحقيق</b><small>Dashboard</small></span></button>
+      <button data-v="file"><i>🗂</i><span><b>ملف القضية</b><small>Case File</small></span></button>
+      <button data-v="people"><i>👥</i><span><b>الشخصيات</b><small>Characters</small></span></button>
+      <button data-v="evidence"><i>🔎</i><span><b>غرفة الأدلة</b><small>Evidence</small></span></button>
+      <button data-v="timeline"><i>🕓</i><span><b>الخط الزمني</b><small>Timeline</small></span></button>
+      <button data-v="howto"><i>📜</i><span><b>تعليمات المحقق</b><small>Instructions</small></span></button>
+      <button data-v="notes"><i>✎</i><span><b>الملاحظات</b><small>Notes</small></span></button>
+      <button data-v="settings"><i>⚙</i><span><b>الإعدادات</b><small>Settings</small></span></button>
+    </nav>
+    <div class="sidefoot"><div class="stampmini">سري لغاية TOP SECRET</div><button id="logout" class="btn ghost block sm">تسجيل الخروج</button><span id="who" class="hidden"></span></div>
+  </aside>
+  <article>
+    <h2 id="title" class="hidden">لوحة التحقيق</h2>
+    <div id="view"></div>
+  </article>
+</section>
+<div id="cmodal" class="cmodal hidden"><div class="cbox"><button class="cx" id="cx" aria-label="إغلاق">×</button><div id="cbody"></div></div></div>
+
+<!-- ===================== لوحة المشرف ===================== -->
+<section id="admin" class="hidden">
+  <button class="btn ghost sm" id="back">عودة</button>
+  <h2>لوحة إدارة القضية</h2>
+  <div id="adminLogin" class="access">
+    <h3>دخول المشرف</h3>
+    <label>البريد<input id="email" type="email" dir="ltr" autocomplete="username"></label>
+    <label>كلمة المرور<input id="password" type="password" dir="ltr" autocomplete="current-password"></label>
+    <button class="btn gold block" id="login">دخول آمن</button>
+    <div id="adminMsg" role="alert"></div>
+  </div>
+  <div id="tools" class="hidden">
+    <div class="stats"><div>إجمالي الأرقام<b id="total">—</b></div><div>المستخدمة<b id="used">—</b></div><div>المتاحة<b id="available">—</b></div></div>
+    <div class="access wide">
+      <h3>إنشاء دفعة أرقام تسلسلية</h3>
+      <label>عدد النسخ (1 – 100)<input id="count" type="number" min="1" max="100" value="10"></label>
+      <button class="btn gold" id="generate">إنشاء الأرقام</button>
+      <button class="btn ghost hidden" id="pdfNew">حفظ الدفعة PDF</button>
+      <div id="codes"></div>
+    </div>
+    <div class="access wide">
+      <h3>سجل الأرقام</h3>
+      <button class="btn ghost sm" id="pdfAll">حفظ السجل PDF</button>
+      <div id="rows"></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>THE LAST SHADOW © 2026 <span>CASE FILE 017 · CLASSIFIED</span></footer>
+<div id="toast" role="status"></div>
+<div id="printSheet" aria-hidden="true"></div>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

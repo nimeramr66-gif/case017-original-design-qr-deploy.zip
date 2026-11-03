@@ -1,0 +1,59 @@
+*{box-sizing:border-box}
+:root{--bk:#080808;--ch:#111110;--gold:#C6A15B;--gold2:#e2c487;--beige:#E8E3D8;--red:#792C27;--line:#c6a15b44;--mut:#9b958a;--ok:#5fae7a;--warn:#d89a45}
+body{margin:0;background:radial-gradient(ellipse at 70% -10%,#26201a,#0d0c0b 45%,#060606);color:var(--beige);font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;min-height:100vh;line-height:1.6}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}.hidden{display:none!important}
+:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+.glass{background:linear-gradient(160deg,rgba(32,28,22,.78),rgba(12,11,10,.86));border:1px solid var(--line);border-radius:10px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 14px 40px #000a}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border:1px solid var(--gold);border-radius:6px;font-weight:600;font-size:14px;transition:filter .2s,transform .1s}
+.btn:hover{filter:brightness(1.15)}.btn:active{transform:scale(.98)}.btn:disabled{opacity:.5;cursor:wait}
+.btn.gold{background:linear-gradient(180deg,#e2c487,#b48b4a);color:#17120a}.btn.ghost{background:rgba(255,255,255,.05);color:var(--gold2)}
+.btn.red{background:#792C27;border-color:#a8473f;color:#fff}.btn.sm{padding:6px 12px;font-size:12px}.btn.block{display:flex;width:100%;margin-top:10px}
+.link{background:none;border:0;color:var(--gold2);text-decoration:underline;padding:6px 0;font-size:13px;display:inline-block}
+input,select,textarea{width:100%;padding:10px 12px;background:#050505;border:1px solid #3d362b;border-radius:6px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--gold)}
+label{display:block;font-size:12px;color:#cfc7b6;margin:12px 0 0}label input,label select,label textarea{margin-top:5px}
+.loginwrap{min-height:100vh;display:grid;place-items:center;padding:20px}
+.login{width:min(420px,100%);padding:30px}.login h1{font:700 44px "Aref Ruqaa",serif;margin:0;color:var(--gold2)}.login small{font:11px Cinzel;letter-spacing:2px;color:var(--gold)}
+#loginMsg{color:#f0b1a6;font-size:13px;min-height:20px;margin-top:8px}
+/* header */
+.top{height:74px;display:flex;align-items:center;gap:22px;padding:0 22px;border-bottom:1px solid var(--line);background:linear-gradient(90deg,#0a0908,#1c1712 50%,#0a0908);position:sticky;top:0;z-index:30}
+.ttl b{font:700 30px "Aref Ruqaa",serif;color:var(--gold2);display:block;line-height:1}.ttl small{font:11px Cinzel;letter-spacing:2px;color:var(--gold)}
+.ttl2{padding-inline-start:22px;border-inline-start:1px solid var(--line)}.ttl2 b{display:block;font-size:18px}.ttl2 small{color:var(--mut)}
+.who{margin-inline-start:auto;display:flex;align-items:center;gap:10px;font-size:13px}.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px var(--ok)}
+.burger{display:none;background:none;border:1px solid var(--line);color:var(--gold2);border-radius:6px;font-size:20px;padding:2px 10px}
+.shell{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 74px)}
+aside{border-inline-end:1px solid var(--line);background:rgba(10,9,8,.8);padding:12px 0;display:flex;flex-direction:column}
+#nav button{display:flex;align-items:center;gap:12px;width:100%;text-align:right;background:none;border:0;border-bottom:1px solid #ffffff0a;padding:13px 18px;color:#cfc7b6;transition:background .2s}
+#nav button i{font-style:normal;font-size:20px;width:26px;color:var(--gold)}#nav button b{display:block;font-weight:500;font-size:14px}#nav button small{display:block;color:var(--mut);font-size:11px}
+#nav button:hover{background:#c6a15b14}#nav button.on{background:linear-gradient(90deg,transparent,#c6a15b33);color:#fff;box-shadow:inset -3px 0 0 var(--gold)}
+.ver{margin-top:auto;padding:14px 18px;color:#6f6a60;font-size:11px}
+main{padding:20px;min-width:0}
+main h2{margin:0 0 14px;font-size:24px;color:var(--gold2)}
+.banner{position:relative;overflow:hidden;min-height:150px;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px 28px;margin-bottom:16px;
+ background:radial-gradient(ellipse at 20% 60%,#3a2a1a88,transparent 60%),linear-gradient(120deg,#0b0a09,#1b1510 55%,#0b0a09)}
+.banner q{font-size:26px;display:block;quotes:"“" "”"}.banner small{color:var(--gold2);font-size:15px}
+.stamp{border:3px solid #a8473f;color:#c2564c;font:700 28px Cinzel;padding:2px 14px;transform:rotate(-8deg);letter-spacing:3px;white-space:nowrap}
+.paper{background:radial-gradient(#efe4c8,#cdb98e);color:#2a2116;padding:14px 26px;transform:rotate(2deg);text-align:center;box-shadow:0 10px 24px #000a}.paper b{display:block;font:700 28px "Aref Ruqaa",serif}.paper small{color:#2a2116;font:700 14px Cinzel}
+.grid{display:grid;gap:14px}.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:1.1fr 1fr 1fr}.g2{grid-template-columns:1fr 1fr}
+.stat{padding:16px 18px;display:flex;align-items:center;gap:14px}.stat i{font-style:normal;font-size:34px;color:var(--gold)}.stat span{color:#cfc7b6;font-size:13px;display:block}
+.stat b{font:700 30px Cinzel;color:#fff}
+.card{padding:16px}.card h3{margin:0 0 12px;font-size:16px;color:var(--gold2);display:flex;justify-content:space-between;align-items:center}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>*{flex:0 1 auto}.row input,.row select{width:auto;flex:1 1 160px}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}.tbl th{color:var(--gold);font-weight:600;text-align:right;padding:8px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl td{padding:8px;border-bottom:1px solid #ffffff0d;vertical-align:middle}.tbl tr.k:hover{background:#c6a15b12;cursor:pointer}.ltr{direction:ltr;text-align:left;font-family:ui-monospace,monospace;font-size:12px}
+.scroll{overflow-x:auto}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;border:1px solid}
+.b-active{color:var(--ok);border-color:var(--ok)}.b-used{color:var(--warn);border-color:var(--warn)}.b-revoked{color:#e0736a;border-color:#e0736a}.b-expired{color:var(--mut);border-color:var(--mut)}
+.qa{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.qa button{padding:14px 6px;background:#ffffff08;border:1px solid var(--line);border-radius:8px;color:var(--gold2)}.qa button:hover{background:#c6a15b22}
+.chart{width:100%;height:190px}.note{font-size:12px;color:var(--mut);margin:8px 0}.warn{border:1px dashed #a8473f;color:#e6b3ac;padding:10px 12px;border-radius:6px;font-size:13px;margin:10px 0}
+.act{display:flex;gap:10px;align-items:center;font-size:13px;padding:6px 0;border-bottom:1px solid #ffffff0a}.act em{margin-inline-start:auto;color:var(--mut);font-style:normal;font-size:11px;white-space:nowrap}
+.modal{position:fixed;inset:0;background:#000b;z-index:80;display:grid;place-items:center;padding:14px;overflow:auto}.box{width:min(820px,100%);max-height:92vh;overflow:auto;padding:24px;position:relative}
+.x{position:absolute;top:8px;left:12px;background:none;border:0;font-size:28px;color:var(--gold2)}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:4px 12px;font-size:13px;margin:10px 0}.kv dt{color:var(--mut)}.kv dd{margin:0;overflow-wrap:anywhere}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+#toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,10px);background:#2a2217;border:1px solid var(--gold);padding:11px 18px;border-radius:8px;opacity:0;pointer-events:none;transition:.25s;z-index:99;max-width:90vw}#toast.show{opacity:1;transform:translate(-50%,0)}
+iframe.pv{width:100%;height:420px;border:1px solid var(--line);border-radius:6px;background:#fff;margin-top:10px}
+@media(max-width:1000px){.g4{grid-template-columns:1fr 1fr}.g3,.g2{grid-template-columns:1fr}.ttl2{display:none}}
+@media(max-width:760px){.burger{display:block}.shell{grid-template-columns:1fr}aside{position:fixed;top:74px;bottom:0;right:0;width:250px;z-index:40;transform:translateX(105%);transition:transform .25s}aside.open{transform:none}
+ .banner{flex-direction:column;align-items:flex-start}.f2{grid-template-columns:1fr}.g4{grid-template-columns:1fr}.who #me{display:none}.kv{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
