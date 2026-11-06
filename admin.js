@@ -1,5 +1,5 @@
 // المفتاح العام فقط. لا تضع service_role هنا أبداً. كل الصلاحيات تُفرض في قاعدة البيانات (RLS + دوال SECURITY DEFINER).
-const CFG = { url: "https://vzanygjerpvjehkxlzgr.supabase.co", key: "sb_publishable_M63V6c8jDiglgAjQCVkfFQ_fYbGbRuw" };
+const CFG = { url: "https://npwlgasrdpyxyknilnrx.supabase.co", key: "sb_publishable_M63V6c8jDiglgAjQCVkfFQ_fYbGbRuw" };
 const sb = window.supabase.createClient(CFG.url, CFG.key);
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
