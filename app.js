@@ -1,6 +1,6 @@
 // Public anon key only. Never place Supabase service_role in browser code.
 const CONFIG = {
-  url: "https://vzanygjerpvjehkxlzgr.supabase.co",
+  url: "https://npwlgasrdpyxyknilnrx.supabase.co",
   anonKey: "sb_publishable_M63V6c8jDiglgAjQCVkfFQ_fYbGbRuw"
 };
 let db = null;
