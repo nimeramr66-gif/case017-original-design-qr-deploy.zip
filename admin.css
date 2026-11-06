@@ -57,3 +57,62 @@ iframe.pv{width:100%;height:420px;border:1px solid var(--line);border-radius:6px
 @media(max-width:760px){.burger{display:block}.shell{grid-template-columns:1fr}aside{position:fixed;top:74px;bottom:0;right:0;width:250px;z-index:40;transform:translateX(105%);transition:transform .25s}aside.open{transform:none}
  .banner{flex-direction:column;align-items:flex-start}.f2{grid-template-columns:1fr}.g4{grid-template-columns:1fr}.who #me{display:none}.kv{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* ================= تخطيط لوحة المدير الجديد (مثل الصورة المرجعية) ================= */
+body{background:radial-gradient(ellipse at 70% -10%,#2a2016,#0b0a09 50%,#050404)}
+.shell{display:grid;grid-template-columns:268px 1fr;min-height:100vh}
+aside{position:sticky;top:0;height:100vh;align-self:start;display:flex;flex-direction:column;padding:16px 12px;gap:10px;overflow-y:auto;
+  background:linear-gradient(180deg,rgba(18,14,10,.92),rgba(6,5,4,.96));border-inline-end:1px solid var(--line);border-block:0}
+.logo{text-align:center;padding:6px 0 8px}.logo svg{width:96px;filter:drop-shadow(0 6px 18px #000)}
+.logo b{display:block;font:700 19px Cinzel,serif;letter-spacing:2px;color:#f0e2c2;margin-top:6px}.logo small{font:700 14px Cinzel;letter-spacing:3px;color:#d8352f}
+#nav{flex:1}
+#nav button{display:flex;align-items:center;gap:12px;width:100%;margin:3px 0;padding:11px 12px;text-align:right;border:1px solid transparent;border-bottom:1px solid transparent;border-radius:14px;
+  background:transparent;color:#d6cdbd;transition:background .3s,border-color .3s,transform .3s var(--ease)}
+#nav button i{font-style:normal;font-size:22px;width:30px;text-align:center;color:var(--gold);filter:drop-shadow(0 0 6px #c6a15b55)}
+#nav button b{font-weight:600;font-size:14px;display:block}#nav button small{color:#8d8575;font-size:11px;display:block;font-family:Cinzel,serif}
+#nav button:hover{background:rgba(255,255,255,.06);transform:translateX(-3px)}
+#nav button.on{background:linear-gradient(180deg,rgba(255,226,160,.38),rgba(198,161,91,.22));border-color:rgba(255,226,160,.6);color:#fff;
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.5),0 8px 22px rgba(198,161,91,.25);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.adm{display:flex;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.04)}
+.crown{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--gold);color:var(--gold2);font-size:18px;flex:none}
+.adm b{display:block;font-size:12px;overflow-wrap:anywhere}.adm small{color:var(--gold);font-size:11px}
+.right{min-width:0;display:flex;flex-direction:column}
+.top{position:relative;overflow:hidden;height:150px;display:flex;align-items:center;gap:20px;padding:0 26px;border-bottom:1px solid var(--line);
+  background:radial-gradient(ellipse at 18% 90%,rgba(120,70,20,.5),transparent 55%),radial-gradient(ellipse at 82% 20%,rgba(60,90,140,.28),transparent 50%),linear-gradient(110deg,#0b0907,#1a130d 45%,#0c0a08)}
+.top:before{content:"";position:absolute;inset:0;background:
+  radial-gradient(60px 50px at 70% 55%,rgba(0,0,0,.85),transparent 70%),
+  repeating-linear-gradient(90deg,transparent 0 46px,rgba(255,255,255,.025) 46px 47px);pointer-events:none}
+.ttl2{position:relative;border:0;padding:0}.ttl2 .eyebrow{display:block;font:500 clamp(14px,1.6vw,22px) Cinzel,serif;letter-spacing:3px;color:#c9bfae}
+.ttl2 b{display:block;font:700 clamp(18px,2vw,28px) Cinzel,serif;letter-spacing:3px;color:#f4e9d0}.ttl2 small{color:var(--gold);font-size:13px}
+.quote{position:relative;margin-inline-start:auto;padding:16px 22px;border-radius:18px;max-width:360px}
+.quote q{font:italic 500 clamp(15px,1.5vw,20px) "Aref Ruqaa",Georgia,serif;color:#f1e6cf;line-height:1.5;quotes:"“" "”"}
+.tright{position:relative;display:flex;align-items:center;gap:12px}
+.bell{width:42px;height:42px;display:grid;place-items:center;font-size:20px}
+.avatar{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font:800 18px Cairo;color:#1c1408;background:linear-gradient(160deg,#f1d9a0,#a8803f);border:2px solid #f4e2b8}
+.glassb{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:var(--gold2);border-radius:14px;backdrop-filter:blur(14px)}
+main{padding:18px 22px 40px}
+/* بطاقات لوحة التحكم */
+.s4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.sc4{position:relative;overflow:hidden;display:flex;align-items:center;gap:14px;padding:18px 20px;min-height:104px}
+.sc4>i{font-style:normal;font-size:40px;filter:drop-shadow(0 4px 10px #000)}.sc4 span{display:block;color:#d6cdbd;font-size:14px}
+.sc4 b{display:block;font:700 34px Cinzel,serif;color:#fff;line-height:1.1}.sc4 svg{position:absolute;left:0;bottom:0;width:48%;height:54%;opacity:.9}
+.dg{display:grid;gap:14px;margin-top:14px}.dg.a{grid-template-columns:1.6fr 1fr 1fr}.dg.b{grid-template-columns:1.5fr 1fr 1fr}
+.card h3{font-family:var(--hfont);font-size:17px}.card h3 .seg{margin-inline-start:auto;display:flex;gap:4px}
+.seg button{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:#d6cdbd;border-radius:10px;padding:4px 12px;font:600 12px Cinzel,serif}
+.seg button.on{background:linear-gradient(180deg,rgba(255,226,160,.8),rgba(198,161,91,.7));color:#1c1408;border-color:#f0d9a0}
+.donutw{display:flex;gap:16px;align-items:center;justify-content:center;flex-wrap:wrap}.donutw svg{width:150px;flex:none}
+.lg{list-style:none;margin:0;padding:0;font-size:14px}.lg li{display:flex;align-items:center;gap:8px;padding:4px 0}.lg i{width:10px;height:10px;border-radius:50%;display:inline-block}.lg b{margin-inline-start:auto;padding-inline-start:16px;font-family:Cinzel}
+.act{align-items:center}.act .ic{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:rgba(198,161,91,.15);border:1px solid var(--line);flex:none}
+.pt{width:100%;border-collapse:collapse;font-size:13px}.pt th{color:var(--mut);text-align:right;font-weight:500;padding:6px;border-bottom:1px solid var(--line)}.pt td{padding:9px 6px;border-bottom:1px solid #ffffff0d}
+.pill{padding:3px 12px;border-radius:8px;font-size:12px;font-weight:700;color:#fff;background:#8a5a1c}.pill.ok{background:#2f7a49}.pill.proc{background:#2b4a8a}
+.qa3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.qa3 button{padding:16px 6px;border-radius:16px;font:600 13px var(--hfont);display:flex;flex-direction:column;gap:8px;align-items:center;color:var(--gold2)}.qa3 button i{font-style:normal;font-size:28px}
+.promo{position:relative;overflow:hidden;min-height:170px;display:flex;flex-direction:column;justify-content:flex-end;padding:18px;
+  background:linear-gradient(180deg,rgba(0,0,0,.1),rgba(0,0,0,.75)),radial-gradient(ellipse at 70% 30%,#5a3c1f,transparent 60%),linear-gradient(120deg,#17120d,#2a1f14)}
+.promo .st{position:absolute;top:22px;left:20px;transform:rotate(-14deg);border:3px solid #a8473f;color:#d4564c;font:800 22px Cinzel;padding:2px 12px;letter-spacing:2px}
+.promo b{font:700 22px Cinzel;letter-spacing:2px;color:#f1e6cf}.promo em{color:#d8352f;font:700 15px Cinzel;font-style:normal}.promo small{color:#c9bfae;font-style:italic}
+.sbar{display:flex;gap:10px;margin-top:14px;align-items:center;padding:12px 16px}.sbar input{flex:1;margin:0}
+#qres{padding:0 16px}
+@media(max-width:1100px){.s4{grid-template-columns:1fr 1fr}.dg.a,.dg.b{grid-template-columns:1fr 1fr}.top{height:auto;min-height:130px;padding:16px 20px;flex-wrap:wrap}.quote{margin:0}}
+@media(max-width:860px){.shell{grid-template-columns:1fr}aside{position:fixed;inset:0 0 0 auto;width:280px;z-index:60;height:100vh;transform:translateX(105%);transition:transform .4s var(--ease);box-shadow:-20px 0 60px #000}aside.open{transform:none}
+  .burger{display:block;position:relative}.s4{grid-template-columns:1fr 1fr}.dg.a,.dg.b{grid-template-columns:1fr}.quote{display:none}.top{min-height:110px}main{padding:14px 12px 40px}.sc4 b{font-size:26px}.sc4>i{font-size:30px}}
+@media(max-width:520px){.s4{grid-template-columns:1fr}.qa3{grid-template-columns:1fr 1fr 1fr}}

@@ -247,8 +247,7 @@ document.querySelectorAll("[data-h]").forEach(b => b.onclick = e => {
   if (!loggedIn) { show("gate"); toast("أدخل الرقم التسلسلي أولاً لفتح ملف القضية"); goAccess(); return; }
   show("workspace"); view({ overview: "file", people: "people", evidence: "evidence", events: "timeline", documents: "howto" }[k] || "dash");
 });
-$("startBtn").onclick = goAccess;
-$("openBtn").onclick = goAccess;
+
 $("serial").addEventListener("input", e => { e.target.value = e.target.value.toUpperCase(); });
 { const qs = new URLSearchParams(location.search).get("s"); if (qs) { $("serial").value = qs.toUpperCase().slice(0, 23); setTimeout(goAccess, 400); } }
 
@@ -258,7 +257,7 @@ $("enter").onclick = async () => {
   const code = $("serial").value.trim().toUpperCase();
   const msg = t => { $("gateMsg").textContent = t; };
   if (!name || !code) return msg("أدخل اسم المحقق والرقم التسلسلي.");
-  if (!/^TLS017-[0-9A-F]{16}$/.test(code)) return msg("صيغة الرقم المطلوبة TLS017-XXXXXXXXXXXXXXXX (16 خانة من 0-9 و A-F)");
+  if (!/^TLS017-[0-9A-Z]{8,16}$/.test(code)) return msg("صيغة الرقم: TLS017- ثم الحروف والأرقام");
   if (!db) return msg("لا يمكن الاتصال بقاعدة البيانات. تحقق من الإنترنت وإعدادات Supabase.");
   $("enter").disabled = true;
   try {
@@ -269,10 +268,10 @@ $("enter").onclick = async () => {
     }
     const { data, error } = await db.rpc("claim_case_serial", { p_serial: code, p_investigator_name: name });
     if (error) throw error;
-    const result = Array.isArray(data) ? data[0] : data;
-    if (!result || result.success !== true) {
-      throw new Error((result && result.message) || "الرقم التسلسلي غير صالح أو مستخدم أو ملغى.");
-    }
+    const r = Array.isArray(data) ? data[0] : data;
+    const okRes = r === true || (r && (r.success === true || r.ok === true || r.claimed === true || r.status === "ok")) ||
+      (r && typeof r === "object" && r.success === undefined && r.error === undefined && r.message === undefined && Object.keys(r).length > 0);
+    if (!okRes) throw new Error((r && (r.message || r.error)) || "الرقم التسلسلي غير صالح أو مستخدم أو ملغى.");
     localStorage.setItem("tls017_name", name);
     plog("serial_activation", code); plog("login_success", code);
     msg("");
@@ -283,7 +282,8 @@ $("enter").onclick = async () => {
     setTop("dash");
     window.scrollTo({ top: 0 });
   } catch (e) {
-    msg(e.message);
+    msg([e.message, e.details, e.hint].filter(Boolean).join(" — ") || "خطأ غير معروف");
+    console.error("login error:", e);
     plog("login_failed", code, "fail", { reason: String(e.message).slice(0, 80) });
   } finally {
     $("enter").disabled = false;

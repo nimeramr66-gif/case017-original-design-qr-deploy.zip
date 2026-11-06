@@ -59,13 +59,13 @@ $("#logout").onclick = async () => { await sb.auth.signOut(); location.reload();
 
 // ---------------- الهيكل ----------------
 const NAV = [
-  ["dashboard", "▦", "لوحة التحكم", "Dashboard", "serials_read"], ["serials", "▥", "الأرقام التسلسلية", "Serial Codes", "serials_read"],
-  ["pdf", "🖶", "مركز الطباعة / PDF", "PDF Generator", "pdf"], ["users", "♟", "المحققون والعملاء", "Users", "users_read"],
-  ["sales", "◈", "المبيعات", "Sales", "sales"], ["audio", "♫", "التسجيلات الصوتية", "Audio Files", "audio"],
-  ["content", "▤", "المحتوى والأدلة", "Content & Evidence", "content"], ["logs", "◷", "سجل النشاطات", "Activity Logs", "logs"],
-  ["admins", "⚙", "حسابات الإدارة", "Administrators", "admins"], ["backup", "☁", "النسخ الاحتياطي", "Backup & Restore", "backup"]];
+  ["dashboard", "📊", "لوحة التحكم", "Dashboard", "serials_read"], ["serials", "🔢", "الأرقام التسلسلية", "Serial Codes", "serials_read"],
+  ["pdf", "🖨", "مركز الطباعة / PDF", "PDF Generator", "pdf"], ["users", "👥", "المحققون والعملاء", "Users", "users_read"],
+  ["sales", "🛒", "المبيعات", "Sales", "sales"], ["audio", "🎧", "التسجيلات الصوتية", "Audio Files", "audio"],
+  ["content", "🗂", "المحتوى والأدلة", "Content & Evidence", "content"], ["logs", "🕓", "سجل النشاطات", "Activity Logs", "logs"],
+  ["admins", "🛡", "حسابات الإدارة", "Administrators", "admins"], ["backup", "☁️", "النسخ الاحتياطي", "Backup & Restore", "backup"]];
 function boot() {
-  $("#login").classList.add("hidden"); $("#app").classList.remove("hidden"); $("#me").textContent = `${me.email} · ${ROLE_AR[me.role]}`;
+  $("#login").classList.add("hidden"); $("#app").classList.remove("hidden"); $("#me").textContent = me.email; $("#role").textContent = ROLE_AR[me.role] || me.role; $("#avatar").textContent = (me.email || "A").charAt(0).toUpperCase();
   $("#nav").innerHTML = NAV.filter(n => can(n[4])).map(n => `<button data-k="${n[0]}"><i>${n[1]}</i><span><b>${n[2]}</b><small>${n[3]}</small></span></button>`).join("");
   $("#nav").onclick = e => { const b = e.target.closest("button"); if (b) go(b.dataset.k); };
   $("#burger").onclick = () => $("#side").classList.toggle("open");
@@ -79,30 +79,62 @@ async function go(k) {
 const main = h => { $("#main").innerHTML = h; };
 
 // ---------------- لوحة التحكم ----------------
+function spark(points, color = "#C6A15B") {
+  const pts = (points && points.length > 1) ? points : [{ n: 0 }, { n: 0 }];
+  const W = 120, H = 50, max = Math.max(...pts.map(x => x.n), 1);
+  const xy = pts.map((x, i) => [i * W / (pts.length - 1), H - 6 - (x.n / max) * (H - 14)]);
+  const d = xy.map((v, i) => (i ? "L" : "M") + v[0].toFixed(1) + " " + v[1].toFixed(1)).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><path d="${d}L${W} ${H}L0 ${H}Z" fill="${color}22"/><path d="${d}" fill="none" stroke="${color}" stroke-width="2"/></svg>`;
+}
+function chart(points) {
+  if (!points.length) return `<p class="note">لا توجد مبيعات في هذه الفترة.</p>`;
+  const W = 640, H = 230, L = 38, B = 26, T = 12, R = 10, max = Math.max(4, Math.ceil(Math.max(...points.map(x => x.n)) / 4) * 4);
+  const X = i => L + (points.length === 1 ? (W - L - R) / 2 : i * (W - L - R) / (points.length - 1)), Y = n => H - B - (n / max) * (H - B - T);
+  const grid = [0, .25, .5, .75, 1].map(f => { const y = Y(max * f); return `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" stroke="#ffffff14"/><text x="${L - 6}" y="${y + 4}" fill="#9b958a" font-size="11" text-anchor="end">${Math.round(max * f)}</text>`; }).join("");
+  const xy = points.map((p, i) => [X(i), Y(p.n)]), d = xy.map((v, i) => (i ? "L" : "M") + v[0].toFixed(1) + " " + v[1].toFixed(1)).join("");
+  const lab = [0, Math.floor((points.length - 1) / 2), points.length - 1].filter((v, i, a) => a.indexOf(v) === i).map(i => `<text x="${X(i)}" y="${H - 6}" fill="#9b958a" font-size="11" text-anchor="middle">${esc(points[i].d)}</text>`).join("");
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet"><defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C6A15B" stop-opacity=".55"/><stop offset="1" stop-color="#C6A15B" stop-opacity="0"/></linearGradient></defs>${grid}${lab}<path d="${d}L${xy.at(-1)[0]} ${H - B}L${xy[0][0]} ${H - B}Z" fill="url(#cg)"/><path d="${d}" fill="none" stroke="#e2c487" stroke-width="2.5" stroke-linejoin="round"/>${xy.map((v, i) => `<circle cx="${v[0]}" cy="${v[1]}" r="4" fill="#e2c487" stroke="#080808" stroke-width="1.5"><title>${esc(points[i].d)}: ${points[i].n}</title></circle>`).join("")}</svg>`;
+}
+function donutSvg(parts, total) {
+  const R = 52, C = 2 * Math.PI * R; let off = 0;
+  const arcs = parts.filter(p => p.v > 0).map(p => { const len = C * p.v / Math.max(total, 1); const o = `<circle r="${R}" cx="70" cy="70" fill="none" stroke="${p.c}" stroke-width="16" stroke-dasharray="${len.toFixed(1)} ${C.toFixed(1)}" stroke-dashoffset="${(-off).toFixed(1)}" transform="rotate(-90 70 70)"/>`; off += len; return o; }).join("");
+  return `<svg viewBox="0 0 140 140"><circle r="${R}" cx="70" cy="70" fill="none" stroke="#ffffff12" stroke-width="16"/>${arcs}<text x="70" y="68" text-anchor="middle" fill="#fff" font-size="21" font-weight="700" font-family="Cinzel,serif">${total}</text><text x="70" y="86" text-anchor="middle" fill="#9b958a" font-size="11">المجموع</text></svg>`;
+}
+function bucket(rows, days) {
+  const now = new Date(); now.setHours(23, 59, 59, 999); const step = days <= 30 ? 1 : days <= 90 ? 7 : 30, n = Math.ceil(days / step), out = [];
+  for (let i = n - 1; i >= 0; i--) { const end = new Date(now - i * step * 864e5), start = new Date(end - step * 864e5); const c = rows.filter(r => { const t = new Date(r.purchased_at); return t > start && t <= end; }).length; out.push({ d: end.toLocaleDateString("en-GB", { day: "2-digit", month: "short" }), n: c }); }
+  return out;
+}
 V.dashboard = async () => {
-  const s = ok(await sb.rpc("admin_stats")); const [logs, aud] = await Promise.all([
-    can("logs") ? sb.from("activity_logs").select("*").order("created_at", { ascending: false }).limit(6) : { data: [] },
-    can("audio") ? sb.from("audio_tracks").select("title,created_at,published").order("created_at", { ascending: false }).limit(3) : { data: [] }]);
-  main(`<div class="glass banner"><div class="stamp">TOP SECRET</div><div style="text-align:center"><q>كل تفصيلة… قد تصنع الفرق</q><small>Every detail… can make the difference</small></div><div class="paper"><b>الظل الأخير</b><small>CASE FILE 017</small></div></div>
-  <div class="grid g4"><div class="glass stat"><i>🛒</i><div><span>إجمالي المشتريات</span><b>${s.sales.total}</b></div></div><div class="glass stat"><i>👥</i><div><span>المحققون المسجلون</span><b>${s.users}</b></div></div>
-  <div class="glass stat"><i>✔</i><div><span>الأكواد المستخدمة</span><b>${s.serials.used}</b></div></div><div class="glass stat"><i>◷</i><div><span>مشتريات اليوم</span><b>${s.sales.today}</b></div></div></div>
-  <div class="grid g4" style="margin-top:14px"><div class="glass stat"><i>▥</i><div><span>إجمالي الأرقام</span><b>${s.serials.total}</b></div></div><div class="glass stat"><i>○</i><div><span>المتاحة</span><b>${s.serials.active}</b></div></div>
-  <div class="glass stat"><i>⛔</i><div><span>الملغاة</span><b>${s.serials.revoked}</b></div></div><div class="glass stat"><i>$</i><div><span>مجموع المبالغ المسجلة</span><b>${Number(s.sales.revenue).toLocaleString("en")}</b></div></div></div>
-  <div class="grid g3" style="margin-top:14px">
-   <div class="glass card"><h3>البحث عن رقم تسلسلي</h3><div class="row"><input id="qs" dir="ltr" placeholder="TLS017-…"><button class="btn gold" id="qgo">بحث</button></div><div id="qres" class="note"></div></div>
-   <div class="glass card"><h3>مبيعات آخر 30 يوماً</h3>${line(s.daily_sales)}</div>
-   <div class="glass card"><h3>نشاط الموقع (أحداث مسجّلة)</h3>${line(s.daily_events, "#7fb7a0")}</div></div>
-  <div class="grid g3" style="margin-top:14px">
-   <div class="glass card"><h3>تسجيلات جديدة للمحققين</h3>${line(s.daily_regs, "#c98b6a")}</div>
-   <div class="glass card"><h3>آخر النشاطات <button class="link" data-go="logs">عرض الكل</button></h3>${(logs.data || []).map(l => `<div class="act"><span>${esc(l.event_type)}</span><span class="ltr">${esc(l.serial || "")}</span><em>${fmt(l.created_at)}</em></div>`).join("") || `<p class="note">لا يوجد.</p>`}</div>
-   <div class="glass card"><h3>التحكم السريع</h3><div class="qa"><button data-go="serials">▥<br>أرقام</button><button data-go="pdf">🖶<br>طباعة</button><button data-go="audio">♫<br>صوت</button><button data-go="sales">◈<br>مبيعات</button><button data-go="content">▤<br>محتوى</button><button data-go="backup">☁<br>نسخ</button></div>
-    ${(aud.data || []).length ? `<p class="note">آخر تسجيل: ${esc(aud.data[0].title)} (${aud.data[0].published ? "منشور" : "مسودة"})</p>` : ""}</div></div>`);
+  const s = ok(await sb.rpc("admin_stats"));
+  const [logs, sales] = await Promise.all([
+    can("logs") ? sb.from("activity_logs").select("*").order("created_at", { ascending: false }).limit(5) : { data: [] },
+    can("sales") ? sb.from("sales").select("*").order("purchased_at", { ascending: false }).limit(1000) : { data: [] }]);
+  const sr = sales.data || [], ev = { serial_activation: ["✔", "تم تفعيل رقم تسلسلي"], login_success: ["🔑", "دخول ناجح"], login_failed: ["⚠", "محاولة دخول فاشلة"], sale_create: ["🛒", "تسجيل شراء جديد"], content_update: ["✎", "تحديث المحتوى"], backup_export: ["☁", "تصدير نسخة احتياطية"], audio_upload: ["🎙", "رفع تسجيل صوتي"], pdf_generation: ["📄", "توليد ملفات PDF"] };
+  const sv = s.serials;
+  main(`<div class="s4">
+   <div class="glass sc4"><i>👥</i><div><span>إجمالي المحققين</span><b>${s.users}</b></div>${spark(s.daily_regs)}</div>
+   <div class="glass sc4"><i>💵</i><div><span>مجموع المبالغ المسجلة</span><b>${Number(s.sales.revenue).toLocaleString("en")}</b></div>${spark(s.daily_sales)}</div>
+   <div class="glass sc4"><i>🛒</i><div><span>إجمالي الطلبات</span><b>${s.sales.total}</b></div>${spark(s.daily_sales, "#7fb7a0")}</div>
+   <div class="glass sc4"><i>▥</i><div><span>الأرقام التسلسلية</span><b>${sv.total}</b></div>${spark(s.daily_events, "#c98b6a")}</div></div>
+  <div class="glass sbar"><input id="qs" dir="ltr" placeholder="ابحث عن رقم تسلسلي  TLS017-…"><button class="btn gold" id="qgo">بحث</button></div><div id="qres" class="note"></div>
+  <div class="dg a">
+   <div class="glass card"><h3>▥ نظرة على المبيعات <span class="seg" id="seg" dir="ltr"><button data-d="7">7D</button><button class="on" data-d="30">30D</button><button data-d="90">90D</button><button data-d="365">1Y</button></span></h3><div id="sch"></div></div>
+   <div class="glass card"><h3>◔ حالة الأرقام التسلسلية</h3><div class="donutw">${donutSvg([{ v: sv.active, c: "#4fae6c" }, { v: sv.used, c: "#d9a441" }, { v: sv.revoked, c: "#d84a42" }, { v: sv.expired, c: "#7d7a74" }], sv.total)}
+     <ul class="lg"><li><i style="background:#4fae6c"></i>متاح<b>${sv.active}</b></li><li><i style="background:#d9a441"></i>مستخدم<b>${sv.used}</b></li><li><i style="background:#d84a42"></i>ملغى<b>${sv.revoked}</b></li><li><i style="background:#7d7a74"></i>منتهي<b>${sv.expired}</b></li></ul></div></div>
+   <div class="glass card"><h3>🔔 آخر النشاطات <button class="link" data-go="logs">عرض الكل</button></h3>${(logs.data || []).map(l => { const e = ev[l.event_type] || ["•", l.event_type]; return `<div class="act"><span class="ic">${e[0]}</span><span>${esc(e[1])}</span><em>${fmt(l.created_at)}</em></div>`; }).join("") || `<p class="note">لا يوجد نشاط مسجّل بعد.</p>`}</div></div>
+  <div class="dg b">
+   <div class="glass card"><h3>🛒 آخر طلبات الشراء <button class="link" data-go="sales">عرض الكل</button></h3><div class="scroll"><table class="pt"><thead><tr><th>العميل</th><th>الرقم</th><th>المبلغ</th><th>التاريخ</th></tr></thead><tbody>${sr.slice(0, 3).map(r => `<tr><td>${esc(r.customer_name)}</td><td class="ltr">${esc(r.serial || "—")}</td><td>${esc(r.amount)} ${esc(r.currency)}</td><td>${fmt(r.purchased_at)}</td></tr>`).join("") || `<tr><td colspan="4">لا مشتريات مسجّلة.</td></tr>`}</tbody></table></div></div>
+   <div class="glass card"><h3>⚡ التحكم السريع</h3><div class="qa3"><button class="btn" data-go="serials"><i>➕</i>توليد أرقام</button><button class="btn" data-go="pdf"><i>📄</i>إنشاء PDF</button><button class="btn" data-go="sales"><i>🧾</i>تسجيل شراء</button></div></div>
+   <div class="glass card promo"><span class="st">TOP SECRET</span><b>THE LAST SHADOW</b><em>CASE FILE 017</em><small>Truth hides in the shadows…</small></div></div>`);
   document.querySelectorAll("[data-go]").forEach(b => b.onclick = () => go(b.dataset.go));
+  const draw = d => { $("#sch").innerHTML = can("sales") ? chart(bucket(sr, d)) : `<p class="note">لا تملك صلاحية عرض المبيعات.</p>`; document.querySelectorAll("#seg button").forEach(b => b.classList.toggle("on", +b.dataset.d === d)); };
+  draw(30); $("#seg").onclick = e => { const b = e.target.closest("button"); if (b) draw(+b.dataset.d); };
   $("#qgo").onclick = guard(async () => {
     const q = $("#qs").value.trim().toUpperCase(); if (!q) return;
     const r = ok(await sb.from("serial_codes").select("*").ilike("serial_display", `%${q}%`).limit(1));
     if (!r.length) { $("#qres").textContent = "لا يوجد رقم مطابق."; return; }
-    $("#qres").innerHTML = `<div class="ltr">${esc(r[0].serial_display)}</div>${badge(r[0].status)} <button class="btn ghost sm" id="qd">عرض التفاصيل</button>`; $("#qd").onclick = () => serialDetail(r[0]);
+    $("#qres").innerHTML = `<span class="ltr">${esc(r[0].serial_display)}</span> ${badge(r[0].status)} <button class="btn ghost sm" id="qd">عرض التفاصيل</button>`; $("#qd").onclick = () => serialDetail(r[0]);
   });
 };
 

@@ -6,8 +6,9 @@
 <meta name="theme-color" content="#080808">
 <meta name="robots" content="noindex,nofollow">
 <title>لوحة تحكم المدير | الظل الأخير</title>
-<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&family=Cairo:wght@500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="admin.css">
+<link rel="stylesheet" href="glass.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -27,15 +28,23 @@
 </div>
 
 <div id="app" class="hidden">
-  <header class="top">
-    <div class="ttl"><b>الظل الأخير</b><small>THE LAST SHADOW</small></div>
-    <div class="ttl2"><b>لوحة تحكم المدير</b><small>Admin Control Panel</small></div>
-    <div class="who"><span class="dot"></span><span id="me">—</span><button class="btn ghost sm" id="logout">خروج</button></div>
-    <button class="burger" id="burger" aria-label="القائمة">☰</button>
-  </header>
   <div class="shell">
-    <aside id="side"><nav id="nav"></nav><div class="ver">Admin Panel v1.0</div></aside>
-    <main id="main" tabindex="-1"></main>
+    <aside id="side">
+      <div class="logo"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="54" fill="none" stroke="#c6a15b" stroke-width="2.5"/><path d="M26 66c4-3 10-5 15-6l3-14c2-8 9-13 16-13s14 5 16 13l3 14c5 1 11 3 15 6l-4 5c-9-3-19-4-30-4s-21 1-30 4z" fill="#0b0a0a" stroke="#c6a15b" stroke-width="2"/><path d="M42 72h36c0 14-7 22-18 22s-18-8-18-22z" fill="#0b0a0a" stroke="#c6a15b" stroke-width="1.6"/></svg>
+        <b>THE LAST SHADOW</b><small>CASE FILE 017</small></div>
+      <nav id="nav"></nav>
+      <div class="adm"><div class="crown">♛</div><div><b id="me">—</b><small id="role">—</small></div></div>
+      <button class="btn ghost sm block" id="logout">تسجيل الخروج ⇥</button>
+    </aside>
+    <div class="right">
+      <header class="top">
+        <button class="burger glassb" id="burger" aria-label="القائمة">☰</button>
+        <div class="ttl2"><span class="eyebrow" dir="ltr">INVESTIGATION COMMAND CENTER</span><b dir="ltr">ADMINISTRATOR PANEL</b><small>لوحة تحكم المدير</small></div>
+        <div class="quote glass-panel"><q dir="ltr">Control the system… Manage the investigation</q></div>
+        <div class="tright"><span class="ib bell" title="التنبيهات">🔔</span><span class="avatar" id="avatar">A</span></div>
+      </header>
+      <main id="main" tabindex="-1"></main>
+    </div>
   </div>
 </div>
 <div id="modal" class="modal hidden"><div class="glass box"><button class="x" id="mx" aria-label="إغلاق">×</button><div id="mbody"></div></div></div>
