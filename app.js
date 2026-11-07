@@ -1,6 +1,6 @@
 // Public anon key only. Never place Supabase service_role in browser code.
 const CONFIG = {
-  url: "https://npwlgasrdpyxyknilnrx.supabase.co",
+  url: "https://vzanygjerpvjehkxlzgr.supabase.co",
   anonKey: "sb_publishable_M63V6c8jDiglgAjQCVkfFQ_fYbGbRuw"
 };
 let db = null;
@@ -158,9 +158,11 @@ const V = {
   settings() {
     return `<div class="wcard"><h3><i>⚙</i>الإعدادات</h3>${kv([["اسم المحقق", localStorage.getItem("tls017_name") || ""], ["نسبة التقدم", progress() + "%"]])}<div class="row2"><button id="resetP" class="btn ghost">تصفير التقدم</button><button id="out3" class="btn ghost">تسجيل الخروج</button></div><p class="note">التقدم يُحفظ على هذا الجهاز فقط. الملاحظات تُحفظ في حسابك.</p></div>`;
   },
+  shop() { return `<div class="wcard"><h3><i>🛒</i>متجر القضية</h3><p class="mut">المنتجات والإضافات المتاحة لطلبها من الإدارة.</p><div id="storeItems">جارٍ تحميل المنتجات…</div><h3>سلة المشتريات</h3><div id="cartItems"></div><button class="btn gold" id="sendOrder">إرسال طلب الشراء</button><div id="shopMsg" class="note"></div></div><div class="wcard"><h3><i>📦</i>طلباتي السابقة</h3><div id="myOrders">جارٍ التحميل…</div></div>`; },
+  messages() { return `<div class="wcard"><h3><i>✉</i>مركز المحادثات</h3><div class="row2"><button class="btn gold" data-room="support">التواصل مع الإدارة</button><button class="btn ghost" data-room="investigators">مجتمع المحققين</button></div><div id="chatRoom" data-room="support"><div id="chatList" class="chatlist">جارٍ تحميل الرسائل…</div><div class="row2"><input id="chatText" maxlength="2000" placeholder="اكتب رسالتك…"><button id="chatSend" class="btn gold">إرسال</button></div></div></div>`; },
   recordings() { return `<div id="recs"></div>`; }
 };
-const TITLES = { dash: "لوحة التحقيق", file: "ملف القضية", people: "الشخصيات", evidence: "غرفة الأدلة", timeline: "الخط الزمني", howto: "تعليمات المحقق", notes: "الملاحظات", settings: "الإعدادات", recordings: "التسجيلات" };
+const TITLES = { dash: "لوحة التحقيق", file: "ملف القضية", people: "الشخصيات", evidence: "غرفة الأدلة", timeline: "الخط الزمني", howto: "تعليمات المحقق", notes: "الملاحظات", settings: "الإعدادات", recordings: "التسجيلات", shop: "متجر القضية", messages: "المحادثات" };
 const KINDMAP = { file: ["case_info"], people: ["character", "suspect"], evidence: ["evidence", "document"], timeline: ["timeline"], howto: ["instruction"], dash: ["announcement", "homepage"] };
 
 async function plog(type, serial, result, details) {
@@ -216,6 +218,51 @@ function bindEvid() {
     b.classList.add("sn"); b.querySelector("i").textContent = "✔"; plog("document_access", null, "ok", { evidence: e.id });
   });
 }
+async function bindShop() {
+  const { data: products, error } = await db.from("products").select("*").eq("active", true).order("sort_order");
+  if (error) { $("storeItems").textContent = "تعذر تحميل المنتجات: " + error.message; return; }
+  const cart = LS.get("tls017_cart", []);
+  const drawCart = () => {
+    $("cartItems").innerHTML = cart.length ? cart.map((x,i)=>`<div class="act"><span>${esc(x.name)} × ${x.qty}</span><b>${(x.price*x.qty).toFixed(2)} ${esc(x.currency)}</b><button class="mini" data-remove="${i}">حذف</button></div>`).join("") + `<p class="note">الإجمالي: ${cart.reduce((n,x)=>n+x.price*x.qty,0).toFixed(2)}</p>` : `<p class="mut">السلة فارغة.</p>`;
+    LS.set("tls017_cart", cart);
+  };
+  $("storeItems").innerHTML = (products||[]).map(p=>`<div class="act"><span><b>${esc(p.name)}</b><small>${esc(p.description||"")}</small></span><b>${Number(p.price).toFixed(2)} ${esc(p.currency||"USD")}</b><button class="btn ghost sm" data-add="${esc(p.id)}">إضافة</button></div>`).join("") || `<p class="mut">لا توجد منتجات منشورة حالياً.</p>`;
+  $("storeItems").onclick = e => { const b=e.target.closest("[data-add]"); if(!b)return; const p=products.find(x=>x.id===b.dataset.add); const old=cart.find(x=>x.id===p.id); if(old)old.qty++;else cart.push({id:p.id,name:p.name,price:Number(p.price),currency:p.currency||"USD",qty:1});drawCart(); };
+  $("cartItems").onclick = e => { const b=e.target.closest("[data-remove]");if(!b)return;cart.splice(+b.dataset.remove,1);drawCart(); };
+  drawCart();
+  const { data: user } = await db.auth.getUser();
+  const { data: orders } = await db.from("order_requests").select("*").eq("user_id",user.user.id).order("created_at",{ascending:false}).limit(30);
+  $("myOrders").innerHTML=(orders||[]).map(o=>`<div class="act"><span>طلب #${esc(o.id.slice(0,8))} · ${esc(o.status)}</span><b>${Number(o.total).toFixed(2)} ${esc(o.currency)}</b></div>`).join("")||`<p class="mut">لا توجد طلبات سابقة.</p>`;
+  $("sendOrder").onclick = async () => {
+    if(!cart.length){$("shopMsg").textContent="أضف منتجاً إلى السلة أولاً.";return;}
+    $("sendOrder").disabled=true;
+    try {
+      const total=cart.reduce((n,x)=>n+x.price*x.qty,0), currency=cart[0].currency;
+      if(cart.some(x=>x.currency!==currency))throw new Error("لا يمكن جمع عملات مختلفة في طلب واحد.");
+      const {error:e}=await db.from("order_requests").insert({user_id:user.user.id,customer_name:localStorage.getItem("tls017_name")||"محقق",items:cart,total,currency,status:"new"});
+      if(e)throw e; cart.splice(0);drawCart();$("shopMsg").textContent="تم إرسال طلبك إلى الإدارة.";await bindShop();
+    } catch(e){$("shopMsg").textContent=e.message;} finally{$("sendOrder").disabled=false;}
+  };
+}
+async function bindMessages() {
+  const roomEl=$("chatRoom"), list=$("chatList");
+  async function loadRoom(room) {
+    roomEl.dataset.room=room;
+    const {data,error}=await db.from("chat_messages").select("*").eq("room",room).order("created_at",{ascending:true}).limit(150);
+    if(error){list.textContent="تعذر تحميل المحادثة: "+error.message;return;}
+    list.innerHTML=(data||[]).map(m=>`<div class="act"><span><b>${esc(m.sender_name||"محقق")}</b><small>${esc(m.body)}</small></span><em>${new Date(m.created_at).toLocaleString("ar")}</em></div>`).join("")||`<p class="mut">لا توجد رسائل بعد. ابدأ المحادثة.</p>`;
+    list.scrollTop=list.scrollHeight;
+  }
+  document.querySelectorAll("[data-room]").forEach(b=>{if(b.tagName==="BUTTON")b.onclick=()=>loadRoom(b.dataset.room);});
+  $("chatSend").onclick=async()=>{
+    const body=$("chatText").value.trim();if(!body)return;
+    const {data:u}=await db.auth.getUser();
+    const {error}=await db.from("chat_messages").insert({room:roomEl.dataset.room,sender_id:u.user.id,sender_name:localStorage.getItem("tls017_name")||"محقق",body});
+    if(error){toast(error.message);return;}$("chatText").value="";await loadRoom(roomEl.dataset.room);
+  };
+  await loadRoom("support");
+}
+
 async function view(v) {
   if (!V[v]) v = "dash";
   document.querySelectorAll("aside nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
@@ -224,6 +271,8 @@ async function view(v) {
   if (v === "dash") bindDash(); if (v === "people") bindPeople(); if (v === "evidence") bindEvid();
   if (v === "notes") { $("notes").value = await loadNotes(); $("save").onclick = () => saveNotes($("notes").value); }
   if (v === "recordings") renderAudio($("recs"));
+  if (v === "shop") bindShop();
+  if (v === "messages") bindMessages();
   if (v === "settings") { $("resetP").onclick = () => { if (confirm("تصفير التقدم المحفوظ على هذا الجهاز؟")) { ["tls017_seen", "tls017_stages", "tls017_log"].forEach(k => localStorage.removeItem(k)); view("settings"); } }; $("out3").onclick = () => $("logout").click(); }
   if (KINDMAP[v]) { const items = await loadContent(v); if (items.length) el.firstChild.insertAdjacentHTML("beforeend", items.map(contentCard).join("")); }
   setTop(v); plog("case_access", null, "ok", { view: v }); window.scrollTo({ top: 0 });
@@ -248,63 +297,81 @@ document.querySelectorAll("[data-h]").forEach(b => b.onclick = e => {
   show("workspace"); view({ overview: "file", people: "people", evidence: "evidence", events: "timeline", documents: "howto" }[k] || "dash");
 });
 
-$("serial").addEventListener("input", e => { e.target.value = e.target.value.toUpperCase(); });
-{ const qs = new URLSearchParams(location.search).get("s"); if (qs) { $("serial").value = qs.toUpperCase().slice(0, 23); setTimeout(goAccess, 400); } }
-
-// ---------------- بوابة المحقق ----------------
-$("enter").onclick = async () => {
-  const name = $("name").value.trim();
-  const code = $("serial").value.trim().toUpperCase();
-  const msg = t => { $("gateMsg").textContent = t; };
-  if (!name || !code) return msg("أدخل اسم المحقق والرقم التسلسلي.");
-  if (!/^TLS017-[0-9A-Z]{8,16}$/.test(code)) return msg("صيغة الرقم: TLS017- ثم الحروف والأرقام");
-  if (!db) return msg("لا يمكن الاتصال بقاعدة البيانات. تحقق من الإنترنت وإعدادات Supabase.");
-  $("enter").disabled = true;
-  try {
-    const { data: s } = await db.auth.getSession();
-    if (!s.session) {
-      const { error: a } = await db.auth.signInAnonymously();
-      if (a) throw a;
-    }
-    const { data, error } = await db.rpc("claim_case_serial", { p_serial: code, p_investigator_name: name });
+// ---------------- بوابة حساب المحقق ----------------
+let authMode = "register";
+function setAuthMode(mode) {
+  authMode = mode;
+  $("registerFields").classList.toggle("hidden", mode !== "register");
+  $("loginFields").classList.toggle("hidden", mode !== "login");
+  $("enter").innerHTML = mode === "register" ? 'إنشاء حساب المحقق <span aria-hidden="true">←</span>' : 'تسجيل الدخول <span aria-hidden="true">←</span>';
+  $("authMode").textContent = mode === "register" ? "لدي حساب — تسجيل الدخول" : "إنشاء حساب جديد";
+  $("forgotInvestigator").classList.toggle("hidden", mode !== "login");
+  $("gateMsg").textContent = "";
+}
+$("authMode").onclick = () => setAuthMode(authMode === "register" ? "login" : "register");
+$("serial").addEventListener("input", e => { e.target.value = e.target.value.replace(/\D/g, "").slice(0, 6); });
+{ const qs = new URLSearchParams(location.search).get("s"); if (qs && /^\d{6}$/.test(qs)) { $("serial").value = qs; setTimeout(goAccess, 400); } }
+$("forgotInvestigator").onclick = async () => {
+  const email = $("loginEmail").value.trim();
+  if (!email) { $("gateMsg").textContent = "اكتب بريدك الإلكتروني أولاً."; return; }
+  const { error } = await db.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname });
+  $("gateMsg").textContent = error ? error.message : "إذا كان البريد مسجلاً، سيصلك رابط إعادة تعيين كلمة المرور.";
+};
+async function finishInvestigatorLogin(user) {
+  const { data: profile, error: pe } = await db.from("profiles").select("role,suspended,full_name").eq("id", user.id).single();
+  if (pe && pe.code !== "PGRST116") throw pe;
+  if (profile?.suspended) throw new Error("هذا الحساب موقوف. تواصل مع الإدارة.");
+  const pending = localStorage.getItem("tls017_pending_case_code");
+  if (pending) {
+    const { data, error } = await db.rpc("claim_case_code", { p_code: pending, p_full_name: localStorage.getItem("tls017_pending_name") || user.user_metadata?.full_name || "" });
     if (error) throw error;
     const r = Array.isArray(data) ? data[0] : data;
-    const okRes = r === true || (r && (r.success === true || r.ok === true || r.claimed === true || r.status === "ok")) ||
-      (r && typeof r === "object" && r.success === undefined && r.error === undefined && r.message === undefined && Object.keys(r).length > 0);
-    if (!okRes) throw new Error((r && (r.message || r.error)) || "الرقم التسلسلي غير صالح أو مستخدم أو ملغى.");
-    localStorage.setItem("tls017_name", name);
-    plog("serial_activation", code); plog("login_success", code);
-    msg("");
-    loggedIn = true;
-    $("who").textContent = name;
-    show("workspace");
-    view("dash");
-    setTop("dash");
-    window.scrollTo({ top: 0 });
-  } catch (e) {
-    msg([e.message, e.details, e.hint].filter(Boolean).join(" — ") || "خطأ غير معروف");
-    console.error("login error:", e);
-    plog("login_failed", code, "fail", { reason: String(e.message).slice(0, 80) });
-  } finally {
-    $("enter").disabled = false;
+    if (!(r === true || r?.success === true || r?.ok === true)) throw new Error(r?.message || "كود القضية غير صحيح أو سبق استخدامه.");
+    localStorage.removeItem("tls017_pending_case_code");
+    localStorage.removeItem("tls017_pending_name");
   }
+  const name = profile?.full_name || user.user_metadata?.full_name || localStorage.getItem("tls017_name") || "المحقق";
+  localStorage.setItem("tls017_name", name);
+  loggedIn = true; $("who").textContent = name; show("workspace"); await view("dash");
+  plog("login_success");
+}
+$("enter").onclick = async () => {
+  const msg = t => { $("gateMsg").textContent = t; };
+  if (!db) return msg("لا يمكن الاتصال بقاعدة البيانات. تحقق من إعدادات Supabase.");
+  $("enter").disabled = true;
+  try {
+    if (authMode === "register") {
+      const name = $("name").value.trim(), email = $("investigatorEmail").value.trim(), password = $("investigatorPassword").value, code = $("serial").value.trim();
+      if (!name || !email || !password || !/^\d{6}$/.test(code)) throw new Error("أكمل الاسم والبريد وكلمة المرور وكود القضية المكوّن من 6 أرقام.");
+      if (password.length < 8) throw new Error("كلمة المرور يجب أن تكون 8 أحرف على الأقل.");
+      const { data, error } = await db.auth.signUp({ email, password, options: { data: { full_name: name } } });
+      if (error) throw error;
+      localStorage.setItem("tls017_pending_case_code", code);
+      localStorage.setItem("tls017_pending_name", name);
+      if (!data.session) { msg("تم إنشاء الحساب. أكّد بريدك الإلكتروني ثم سجّل الدخول لإتمام ربط كود القضية."); setAuthMode("login"); $("loginEmail").value = email; return; }
+      await finishInvestigatorLogin(data.user);
+    } else {
+      const email = $("loginEmail").value.trim(), password = $("loginPassword").value;
+      if (!email || !password) throw new Error("أدخل البريد الإلكتروني وكلمة المرور.");
+      const { data, error } = await db.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      await finishInvestigatorLogin(data.user);
+    }
+  } catch (e) {
+    msg([e.message, e.details, e.hint].filter(Boolean).join(" — ") || "تعذر إتمام العملية.");
+    console.error("investigator auth:", e);
+  } finally { $("enter").disabled = false; }
 };
 
-// استرجاع الجلسة عند تحديث الصفحة
+// استعادة جلسة الحساب من أي جهاز بعد تسجيل الدخول
 (async function restore() {
   if (!db) return;
   try {
     const { data } = await db.auth.getSession();
-    const name = localStorage.getItem("tls017_name");
-    if (data?.session?.is_anonymous && name) {
-      loggedIn = true;
-      $("who").textContent = name;
-      show("workspace");
-      view("dash");
-      setTop("dash");
-    }
+    const user = data?.session?.user;
+    if (user && !user.is_anonymous) await finishInvestigatorLogin(user);
   } catch (e) { console.warn("restore:", e.message); }
-})();
+});
 
 // ---------------- لوحة المشرف ----------------
 let allRows = [];
@@ -344,11 +411,11 @@ function ensureSearchBox() {
 
 function renderRows() {
   const q = ($("search")?.value || "").trim().toUpperCase();
-  const rows = q ? allRows.filter(x => String(x.serial_display || "").toUpperCase().includes(q)) : allRows;
+  const rows = q ? allRows.filter(x => String((x.case_code || x.serial_display) || "").toUpperCase().includes(q)) : allRows;
   $("rows").innerHTML = rows.map(x => {
     const by = x.used_by_name || x.investigator_name || x.used_by || "";
     const date = x.created_at ? new Date(x.created_at).toLocaleString("ar") : "";
-    return `<div class="code">${esc(x.serial_display)} · ${esc(statusLabels[x.status] || x.status)} · ${esc(date)}${by ? " · " + esc(by) : ""}</div>`;
+    return `<div class="code">${esc((x.case_code || x.serial_display))} · ${esc(statusLabels[x.status] || x.status)} · ${esc(date)}${by ? " · " + esc(by) : ""}</div>`;
   }).join("") || "لا توجد أرقام.";
 }
 
@@ -366,9 +433,9 @@ $("generate").onclick = async () => {
   const n = Number($("count").value);
   if (!Number.isInteger(n) || n < 1 || n > 100) { toast("العدد من 1 إلى 100"); return; }
   try {
-    const { data, error } = await db.rpc("admin_generate_serials", { p_count: n });
+    const { data, error } = await db.rpc("admin_generate_case_codes", { p_count: n });
     if (error) throw error;
-    const list = (data || []).map(c => (typeof c === "string" ? c : c.serial_display));
+    const list = (data || []).map(c => (typeof c === "string" ? c : c.case_code));
     $("codes").innerHTML = list.map(c => `<div class="code"><span>${esc(c)}</span><button class="btn ghost sm" data-code="${esc(c)}">نسخ</button></div>`).join("");
     document.querySelectorAll("[data-code]").forEach(b => b.onclick = () =>
       navigator.clipboard.writeText(b.dataset.code).then(() => toast("تم النسخ")));
@@ -385,7 +452,7 @@ $("goSet").onclick = () => view("settings");
 $("logout").onclick = async () => {
   await plog("logout");
   if (db) await db.auth.signOut();
-  localStorage.removeItem("tls017_name");
+  ["tls017_name","tls017_pending_case_code","tls017_pending_name"].forEach(k=>localStorage.removeItem(k));
   allRows = [];
   loggedIn = false;
   setTop("home");
@@ -406,6 +473,6 @@ function exportPdf(items, title) {
 }
 $("pdfNew").onclick = () => exportPdf(lastBatch.map(c => ({ serial: c })), "دفعة أرقام جديدة");
 $("pdfAll").onclick = () => exportPdf(allRows.map(x => ({
-  serial: x.serial_display,
+  serial: (x.case_code || x.serial_display),
   note: (statusLabels[x.status] || x.status) + (x.created_at ? " · " + new Date(x.created_at).toLocaleDateString("ar") : "")
 })), "سجل الأرقام التسلسلية");

@@ -1,5 +1,5 @@
 // المفتاح العام فقط. لا تضع service_role هنا أبداً. كل الصلاحيات تُفرض في قاعدة البيانات (RLS + دوال SECURITY DEFINER).
-const CFG = { url: "https://npwlgasrdpyxyknilnrx.supabase.co", key: "sb_publishable_M63V6c8jDiglgAjQCVkfFQ_fYbGbRuw" };
+const CFG = { url: "https://vzanygjerpvjehkxlzgr.supabase.co", key: "sb_publishable_M63V6c8jDiglgAjQCVkfFQ_fYbGbRuw" };
 const sb = window.supabase.createClient(CFG.url, CFG.key);
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -61,7 +61,7 @@ $("#logout").onclick = async () => { await sb.auth.signOut(); location.reload();
 const NAV = [
   ["dashboard", "📊", "لوحة التحكم", "Dashboard", "serials_read"], ["serials", "🔢", "الأرقام التسلسلية", "Serial Codes", "serials_read"],
   ["pdf", "🖨", "مركز الطباعة / PDF", "PDF Generator", "pdf"], ["users", "👥", "المحققون والعملاء", "Users", "users_read"],
-  ["sales", "🛒", "المبيعات", "Sales", "sales"], ["audio", "🎧", "التسجيلات الصوتية", "Audio Files", "audio"],
+  ["sales", "🛒", "المبيعات", "Sales", "sales"], ["products", "🛍", "المنتجات", "Products", "sales"], ["orders", "📦", "طلبات الشراء", "Orders", "sales"], ["messages", "✉", "المحادثات", "Messages", "sales"], ["audio", "🎧", "التسجيلات الصوتية", "Audio Files", "audio"],
   ["content", "🗂", "المحتوى والأدلة", "Content & Evidence", "content"], ["logs", "🕓", "سجل النشاطات", "Activity Logs", "logs"],
   ["admins", "🛡", "حسابات الإدارة", "Administrators", "admins"], ["backup", "☁️", "النسخ الاحتياطي", "Backup & Restore", "backup"]];
 function boot() {
@@ -132,7 +132,7 @@ V.dashboard = async () => {
   draw(30); $("#seg").onclick = e => { const b = e.target.closest("button"); if (b) draw(+b.dataset.d); };
   $("#qgo").onclick = guard(async () => {
     const q = $("#qs").value.trim().toUpperCase(); if (!q) return;
-    const r = ok(await sb.from("serial_codes").select("*").ilike("serial_display", `%${q}%`).limit(1));
+    const r = ok(await sb.from("serial_codes").select("*").or(`case_code.ilike.%${q}%,serial_display.ilike.%${q}%`).limit(1));
     if (!r.length) { $("#qres").textContent = "لا يوجد رقم مطابق."; return; }
     $("#qres").innerHTML = `<span class="ltr">${esc(r[0].serial_display)}</span> ${badge(r[0].status)} <button class="btn ghost sm" id="qd">عرض التفاصيل</button>`; $("#qd").onclick = () => serialDetail(r[0]);
   });
@@ -143,13 +143,13 @@ let serialCache = [];
 V.serials = async () => {
   main(`<h2>الأرقام التسلسلية</h2><div class="glass card"><div class="row"><input id="sq" placeholder="بحث: رقم / اسم عميل / بريد / معرّف محقق"><select id="sf"><option value="">كل الحالات</option>${Object.entries(ST).map(([k, v]) => `<option value="${k}">${v}</option>`).join("")}</select>
    <button class="btn ghost" id="sx">تصدير CSV</button></div>
-   ${can("serials") ? `<div class="row" style="margin-top:10px"><input id="gn" type="number" min="1" max="500" value="10" style="max-width:110px"><button class="btn gold" id="gen">توليد أرقام جديدة</button><span class="note">حتى 500 في الطلب (تُولَّد على دفعات من 100). لا يمكن أن يتكرر رقم.</span></div>` : ""}
+   ${can("serials") ? `<div class="row" style="margin-top:10px"><input id="gn" type="number" min="1" max="500" value="10" style="max-width:110px"><button class="btn gold" id="gen">توليد أكواد قضية (6 أرقام)</button><span class="note">حتى 500 في الطلب (تُولَّد على دفعات من 100). لا يمكن أن يتكرر رقم.</span></div>` : ""}
    <div id="gout"></div></div><div class="glass card" style="margin-top:14px"><div class="scroll"><table class="tbl"><thead><tr><th>الرقم</th><th>الحالة</th><th>العميل</th><th>تاريخ الإنشاء</th></tr></thead><tbody id="srows"></tbody></table></div><p class="note" id="scount"></p></div>`);
   serialCache = ok(await sb.from("serial_codes").select("*").order("created_at", { ascending: false }).limit(1000));
   const draw = () => {
     const q = $("#sq").value.trim().toLowerCase(), f = $("#sf").value;
     const rows = serialCache.filter(x => (!f || x.status === f) && (!q || JSON.stringify(x).toLowerCase().includes(q)));
-    $("#srows").innerHTML = rows.slice(0, 300).map((x, i) => `<tr class="k" data-i="${serialCache.indexOf(x)}"><td class="ltr">${esc(x.serial_display)}</td><td>${badge(x.status)}</td><td>${esc(x.customer_name || "")}</td><td>${fmt(x.created_at)}</td></tr>`).join("") || `<tr><td colspan="4">لا نتائج</td></tr>`;
+    $("#srows").innerHTML = rows.slice(0, 300).map((x, i) => `<tr class="k" data-i="${serialCache.indexOf(x)}"><td class="ltr">${esc(x.case_code || x.serial_display)}</td><td>${badge(x.status)}</td><td>${esc(x.customer_name || "")}</td><td>${fmt(x.created_at)}</td></tr>`).join("") || `<tr><td colspan="4">لا نتائج</td></tr>`;
     $("#scount").textContent = `${rows.length} نتيجة (يُعرض أول 300) — يُحمَّل آخر 1000 رقم.`; return rows;
   };
   draw(); $("#sq").oninput = draw; $("#sf").onchange = draw;
@@ -157,7 +157,7 @@ V.serials = async () => {
   $("#sx").onclick = () => { download("serials.csv", csv(draw())); log("backup_export", null, "ok", { what: "serials_csv" }); };
   if ($("#gen")) $("#gen").onclick = guard(async () => {
     let n = Math.min(500, Math.max(1, Number($("#gn").value) | 0)), all = []; $("#gen").disabled = true;
-    try { while (n > 0) { const c = Math.min(100, n); const d = ok(await sb.rpc("admin_generate_serials", { p_count: c })); all.push(...d.map(x => typeof x === "string" ? x : x.serial_display)); n -= c; } }
+    try { while (n > 0) { const c = Math.min(100, n); const d = ok(await sb.rpc("admin_generate_case_codes", { p_count: c })); all.push(...d.map(x => typeof x === "string" ? x : x.case_code)); n -= c; } }
     finally { $("#gen").disabled = false; }
     $("#gout").innerHTML = `<p class="note">تم توليد ${all.length} رقماً.</p><div class="row"><button class="btn ghost sm" id="gcp">نسخ الكل</button><button class="btn ghost sm" id="gcsv">CSV</button></div><div class="ltr" style="max-height:140px;overflow:auto;margin-top:8px">${all.map(esc).join("<br>")}</div>`;
     $("#gcp").onclick = () => navigator.clipboard.writeText(all.join("\n")).then(() => toast("تم النسخ")); $("#gcsv").onclick = () => download("new-serials.csv", "serial\n" + all.join("\n"));
@@ -165,7 +165,7 @@ V.serials = async () => {
   });
 };
 async function serialDetail(x) {
-  const id = x.id, key = x.serial_display;
+  const id = x.id, key = x.case_code || x.serial_display;
   const logs = can("logs") ? ok(await sb.from("activity_logs").select("*").eq("serial", key).order("created_at", { ascending: false }).limit(200)) : [];
   const logins = logs.filter(l => l.event_type === "login_success"), outs = logs.filter(l => l.event_type === "logout");
   const act = logs.filter(l => l.event_type === "serial_activation").at(-1);
@@ -190,7 +190,7 @@ async function serialDetail(x) {
 // ---------------- مركز الطباعة / PDF ----------------
 V.pdf = async () => {
   const hist = ok(await sb.from("print_jobs").select("*").order("generated_at", { ascending: false }).limit(100));
-  main(`<h2>مركز الطباعة / PDF</h2><div class="glass card"><p class="note">ارفع ملف القضية الأصلي (PDF). يُختم على كل نسخة رقمٌ تسلسلي جديد فريد ورمز QR يفتح بوابة الدخول مع تعبئة الرقم، دون تغيير تصميم الصفحات.</p>
+  main(`<h2>مركز الطباعة / PDF</h2><div class="glass card"><p class="note">ارفع ملف القضية الأصلي (PDF). يُختم على كل نسخة كود قضية فريد من 6 أرقام ورمز QR يفتح بوابة الدخول مع تعبئة الكود، دون تغيير تصميم الصفحات.</p>
    <div class="f2"><label>ملف القضية PDF<input id="pf" type="file" accept="application/pdf"></label><label>اسم القضية<input id="pl" value="CASE FILE 017"></label>
    <label>عدد النسخ (1–200)<input id="pn" type="number" min="1" max="200" value="1"></label><label>موضع الختم<select id="pp"><option value="first">الصفحة الأولى</option><option value="last">الصفحة الأخيرة</option><option value="all">كل الصفحات</option></select></label>
    <label>الزاوية<select id="pc"><option value="br">أسفل اليمين</option><option value="bl">أسفل اليسار</option><option value="tr">أعلى اليمين</option><option value="tl">أعلى اليسار</option></select></label></div>
@@ -203,17 +203,17 @@ V.pdf = async () => {
     for (const pg of targets) {
       const { width: w, height: h } = pg.getSize(), S = 62, m = 16, left = cor.endsWith("l"), top = cor.startsWith("t"), x = left ? m : w - S - m, y = top ? h - S - m - 14 : m + 14;
       pg.drawRectangle({ x: x - 4, y: y - 16, width: S + 8, height: S + 22, color: rgb(1, 1, 1), opacity: .85 }); pg.drawImage(png, { x, y, width: S, height: S });
-      pg.drawText(serial.slice(0, 12), { x: x - 2, y: y - 9, size: 6.5, font, color: rgb(.1, .1, .1) }); pg.drawText(serial.slice(12), { x: x - 2, y: y - 15, size: 6.5, font, color: rgb(.1, .1, .1) });
+      pg.drawText(serial, { x: x - 2, y: y - 9, size: 8, font, color: rgb(.1, .1, .1) });
     }
     return doc.save();
   }
   const src = async () => { const f = $("#pf").files[0]; if (!f) throw new Error("اختر ملف PDF أولاً"); if (f.type !== "application/pdf" || f.size > 80e6) throw new Error("ملف PDF غير صالح أو أكبر من 80MB"); return new Uint8Array(await f.arrayBuffer()); };
-  $("#ppv").onclick = guard(async () => { const b = await stamp(await src(), "TLS017-PREVIEW00000000"); $("#ppvo").innerHTML = `<iframe class="pv" src="${URL.createObjectURL(new Blob([b], { type: "application/pdf" }))}"></iframe><p class="note">المعاينة بقيمة تجريبية ولا تُسجَّل.</p>`; });
+  $("#ppv").onclick = guard(async () => { const b = await stamp(await src(), "123456"); $("#ppvo").innerHTML = `<iframe class="pv" src="${URL.createObjectURL(new Blob([b], { type: "application/pdf" }))}"></iframe><p class="note">المعاينة بقيمة تجريبية ولا تُسجَّل.</p>`; });
   $("#pgo").onclick = guard(async () => {
     const bytes = await src(), n = Math.min(200, Math.max(1, Number($("#pn").value) | 0)), label = $("#pl").value.trim() || "CASE FILE 017";
     if (!confirm(`سيتم توليد ${n} رقماً جديداً وتسجيلها بشكل دائم. متابعة؟`)) return; $("#pgo").disabled = true; const serials = [];
     try {
-      let left = n; while (left > 0) { const c = Math.min(100, left); serials.push(...ok(await sb.rpc("admin_generate_serials", { p_count: c })).map(x => typeof x === "string" ? x : x.serial_display)); left -= c; }
+      let left = n; while (left > 0) { const c = Math.min(100, left); serials.push(...ok(await sb.rpc("admin_generate_case_codes", { p_count: c })).map(x => typeof x === "string" ? x : x.case_code)); left -= c; }
       const files = []; for (let i = 0; i < serials.length; i++) { $("#pst").textContent = `ختم ${i + 1} / ${serials.length}`; files.push([serials[i], await stamp(bytes, serials[i])]); }
       ok(await sb.from("print_jobs").insert(serials.map(s => ({ serial: s, case_label: label, status: "generated" }))));
       if (files.length === 1) { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([files[0][1]], { type: "application/pdf" })); a.download = `${files[0][0]}.pdf`; a.click(); }
@@ -253,7 +253,7 @@ V.sales = async () => {
   $("#sf2").onsubmit = guard(async e => {
     e.preventDefault(); const f = Object.fromEntries(new FormData(e.target)); f.serial = (f.serial || "").trim().toUpperCase() || null; f.currency = (f.currency || "USD").toUpperCase();
     f.purchased_at = f.purchased_at ? new Date(f.purchased_at).toISOString() : new Date().toISOString(); f.amount = Number(f.amount);
-    if (f.serial) { if (!/^TLS017-[0-9A-F]{16}$/.test(f.serial)) throw new Error("صيغة الرقم غير صحيحة"); const s = ok(await sb.from("serial_codes").select("id").eq("serial_display", f.serial).limit(1)); if (!s.length) throw new Error("الرقم غير موجود"); f._sid = s[0].id; }
+    if (f.serial) { if (!/^\d{6}$/.test(f.serial)) throw new Error("كود القضية يجب أن يتكون من 6 أرقام"); const s = ok(await sb.from("serial_codes").select("id").eq("case_code", f.serial).limit(1)); if (!s.length) throw new Error("الرقم غير موجود"); f._sid = s[0].id; }
     const sid = f._sid; delete f._sid; const row = ok(await sb.from("sales").insert(f).select().single());
     if (sid) ok(await sb.rpc("admin_update_serial", { p_id: String(sid), p: { customer_name: f.customer_name, customer_email: f.customer_email || "", purchase_ref: row.id.slice(0, 8) } }));
     log("sale_create", f.serial, "ok", { amount: f.amount }); toast("تم تسجيل الشراء"); V.sales();
@@ -262,6 +262,23 @@ V.sales = async () => {
 
 // ---------------- الصوتيات ----------------
 const SECTIONS = { recordings: "التسجيلات", overview: "النظرة العامة", events: "الأحداث", people: "الأشخاص", evidence: "الأدلة" };
+V.products = async () => {
+  const rows=ok(await sb.from("products").select("*").order("sort_order"));
+  main(`<h2>إدارة المنتجات</h2><div class="glass card"><div class="f2"><label>اسم المنتج<input id="pn"></label><label>السعر<input id="pp" type="number" min="0" step=".01"></label><label>العملة<select id="pcu"><option>USD</option><option>ILS</option><option>JOD</option></select></label><label>الوصف<input id="pd"></label></div><button class="btn gold" id="padd">إضافة منتج</button></div><div class="glass card">${rows.map(p=>`<div class="act"><span><b>${esc(p.name)}</b><small>${esc(p.description||"")}</small></span><b>${Number(p.price).toFixed(2)} ${esc(p.currency)}</b><span>${p.active?"منشور":"مخفي"}</span><button class="btn ghost sm" data-edit="${p.id}">تعديل</button><button class="btn ghost sm" data-toggle="${p.id}">${p.active?"إخفاء":"نشر"}</button></div>`).join("")||"لا توجد منتجات."}</div>`);
+  $("#padd").onclick=guard(async()=>{const name=$("#pn").value.trim(),price=Number($("#pp").value);if(!name||!Number.isFinite(price)||price<0)throw new Error("أدخل الاسم والسعر.");ok(await sb.from("products").insert({name,price,currency:$("#pcu").value,description:$("#pd").value,active:true}));V.products();});
+  document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=guard(async()=>{const p=rows.find(x=>x.id===b.dataset.edit);const name=prompt("اسم المنتج",p.name);if(name===null)return;const price=Number(prompt("السعر",p.price));if(!Number.isFinite(price)||price<0)throw new Error("السعر غير صحيح.");ok(await sb.from("products").update({name:name.trim(),price}).eq("id",p.id));V.products();}));
+  document.querySelectorAll("[data-toggle]").forEach(b=>b.onclick=guard(async()=>{const p=rows.find(x=>x.id===b.dataset.toggle);ok(await sb.from("products").update({active:!p.active}).eq("id",p.id));V.products();}));
+};
+V.orders = async () => {
+  const rows=ok(await sb.from("order_requests").select("*").order("created_at",{ascending:false}).limit(500));
+  main(`<h2>طلبات الشراء</h2><div class="glass card"><div class="scroll"><table class="tbl"><thead><tr><th>العميل</th><th>المحتويات</th><th>الإجمالي</th><th>الحالة</th><th>التاريخ</th><th>تحديث</th></tr></thead><tbody>${rows.map(o=>`<tr><td>${esc(o.customer_name)}</td><td>${(o.items||[]).map(x=>`${esc(x.name)} × ${x.qty}`).join("<br>")}</td><td>${Number(o.total).toFixed(2)} ${esc(o.currency)}</td><td>${esc(o.status)}</td><td>${fmt(o.created_at)}</td><td><select data-order="${o.id}"><option value="new" ${o.status==="new"?"selected":""}>جديد</option><option value="processing" ${o.status==="processing"?"selected":""}>قيد التجهيز</option><option value="completed" ${o.status==="completed"?"selected":""}>مكتمل</option><option value="cancelled" ${o.status==="cancelled"?"selected":""}>ملغي</option></select></td></tr>`).join("")}</tbody></table></div></div>`);
+  document.querySelectorAll("[data-order]").forEach(x=>x.onchange=guard(async()=>{ok(await sb.from("order_requests").update({status:x.value}).eq("id",x.dataset.order));toast("تم تحديث حالة الطلب");}));
+};
+V.messages = async () => {
+  const rows=ok(await sb.from("chat_messages").select("*").order("created_at",{ascending:false}).limit(200));
+  main(`<h2>مركز المحادثات</h2><div class="glass card"><div class="scroll">${rows.reverse().map(m=>`<div class="act"><span><b>${esc(m.sender_name)} · ${esc(m.room)}</b><small>${esc(m.body)}</small></span><em>${fmt(m.created_at)}</em></div>`).join("")||"لا توجد رسائل."}</div><div class="f2"><label>القناة<select id="mr"><option value="support">الدعم والإدارة</option><option value="investigators">مجتمع المحققين</option></select></label><label>الرد<input id="mb" maxlength="2000"></label></div><button class="btn gold" id="msend">إرسال رسالة إدارية</button></div>`);
+  $("#msend").onclick=guard(async()=>{const body=$("#mb").value.trim();if(!body)return;ok(await sb.from("chat_messages").insert({room:$("#mr").value,sender_id:me.id,sender_name:"الإدارة",body}));V.messages();});
+};
 V.audio = async () => {
   const rows = ok(await sb.from("audio_tracks").select("*").order("created_at", { ascending: false }));
   main(`<h2>التسجيلات الصوتية</h2><div class="glass card"><div class="f2"><label>ملف صوتي (MP3/WAV/M4A/OGG، حتى 50MB)<input id="af" type="file" accept="audio/*"></label><label>العنوان<input id="at"></label>

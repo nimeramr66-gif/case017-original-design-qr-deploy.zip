@@ -70,9 +70,19 @@
         <h2>بوابة المحقق</h2><small class="en red">INVESTIGATOR PORTAL</small>
         <p class="lead">ادخل إلى عالم التحقيق واكتشف الحقائق</p>
         <ul class="feat"><li>استعرض ملف القضية</li><li>افحص الأدلة والوثائق</li><li>تتبّع الخط الزمني</li><li>استمع إلى الإحاطة الصوتية</li></ul>
-        <label>اسم المحقق<input id="name" maxlength="60" placeholder="اكتب اسمك" autocomplete="off"></label>
-        <label>الرقم التسلسلي<input id="serial" dir="ltr" maxlength="23" placeholder="TLS017-XXXXXXXXXXXXXXXX" autocomplete="off" autocapitalize="characters" spellcheck="false"></label>
-        <button class="gbtn red block" id="enter">تسجيل الدخول <span aria-hidden="true">←</span></button>
+        <div id="registerFields">
+          <label>الاسم الكامل<input id="name" maxlength="60" placeholder="اكتب اسمك الكامل" autocomplete="name" required></label>
+          <label>البريد الإلكتروني<input id="investigatorEmail" type="email" dir="ltr" placeholder="name@example.com" autocomplete="email" required></label>
+          <label>كلمة المرور<input id="investigatorPassword" type="password" dir="ltr" minlength="8" placeholder="8 أحرف على الأقل" autocomplete="new-password" required></label>
+          <label>كود القضية — 6 أرقام<input id="serial" dir="ltr" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="000000" autocomplete="off" required></label>
+        </div>
+        <div id="loginFields" class="hidden">
+          <label>البريد الإلكتروني<input id="loginEmail" type="email" dir="ltr" placeholder="name@example.com" autocomplete="username"></label>
+          <label>كلمة المرور<input id="loginPassword" type="password" dir="ltr" autocomplete="current-password"></label>
+        </div>
+        <button class="gbtn red block" id="enter">إنشاء حساب المحقق <span aria-hidden="true">←</span></button>
+        <button type="button" class="btn ghost sm block" id="authMode">لدي حساب — تسجيل الدخول</button>
+        <button type="button" class="btn ghost sm block hidden" id="forgotInvestigator">نسيت كلمة المرور؟</button>
         <div id="gateMsg" role="alert"></div>
       </div>
 
@@ -120,6 +130,8 @@
       <button data-v="howto"><i>📜</i><span><b>تعليمات المحقق</b><small>Instructions</small></span></button>
       <button data-v="notes"><i>✎</i><span><b>الملاحظات</b><small>Notes</small></span></button>
       <button data-v="settings"><i>⚙</i><span><b>الإعدادات</b><small>Settings</small></span></button>
+      <button data-v="shop"><i>🛒</i><span><b>متجر القضية</b><small>Case Store</small></span></button>
+      <button data-v="messages"><i>✉</i><span><b>المحادثات</b><small>Messages</small></span></button>
     </nav>
     <div class="sidefoot"><div class="stampmini">سري لغاية TOP SECRET</div><button id="logout" class="btn ghost block sm">تسجيل الخروج</button><span id="who" class="hidden"></span></div>
   </aside>
