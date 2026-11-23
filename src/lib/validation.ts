@@ -1,0 +1,1 @@
+import{z}from'zod';export const authSchema=z.object({fullName:z.string().trim().min(2,'اكتب اسم المحقق').max(80),email:z.email('البريد الإلكتروني غير صحيح'),password:z.string().min(8,'كلمة المرور يجب أن تكون 8 أحرف على الأقل')});export const codeSchema=z.object({fullName:z.string().trim().min(2).max(80),code:z.string().regex(/^\d{6}$/,'كود القضية يجب أن يتكون من 6 أرقام')});
