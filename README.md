@@ -1,48 +1,26 @@
 # THE LAST SHADOW — CASE FILE 017
 
-واجهة سينمائية بنفس هوية الصورة المرجعية: ميناء ليلي، شعار دائري، ورق معتّق، ختم TOP SECRET، بطاقة القضية، وأزرار ذهبية/شفافة. عربي RTL ومتجاوبة.
+## New game application (React / TypeScript / Vite)
+The new cinematic investigator application is being built on the branch `game/react-foundation`. The original static investigator experience is preserved at `legacy.html`; the separate administrator files remain available as `admin.html`, `admin.js`, and `admin.css`.
 
-## الملفات
-- `index.html` الهيكل (المشهد مرسوم SVG داخل الصفحة، لا يحتاج صوراً خارجية).
-- `style.css` التصميم.
-- `app.js` المنطق + الاتصال بـ Supabase.
+### Run locally
+1. Install Node.js 20.19+ or 22.12+.
+2. Copy `.env.example` to `.env.local`.
+3. Set `VITE_SUPABASE_ANON_KEY` to the publishable/anon key from the Supabase project configured in `VITE_SUPABASE_URL`.
+4. Run `npm install`, then `npm run dev`.
+5. Run `npm run build` for a production build.
 
-## التشغيل
-`npx serve .` ثم افتح الرابط. لا تختبر Supabase من file://
+Never put a Supabase service_role key in a VITE_ variable or browser code.
 
-## حفظ PDF
-في لوحة الإدارة: «حفظ الدفعة PDF» أو «حفظ السجل PDF» → تفتح نافذة الطباعة → اختر «حفظ كـ PDF» (على الآيفون: مشاركة ← حفظ في الملفات).
+## Architecture audit
+See `docs/ARCHITECTURE-AUDIT.md` for the current baseline and migration strategy.
 
-## ملاحظة
-جدول investigator_notes يفترض الأعمدة user_id وcontent وcreated_at وid؛ عدّل `NOTES` في أعلى app.js إن اختلفت.
+## Legacy application
+- `legacy.html`: original investigator interface snapshot.
+- `admin.html`: existing administrator interface.
+- `app.js`, `data.js`, `style.css`, `glass.css`: original vanilla-JS application and visual system.
+- `assets/`: original Case 017 art and map assets.
+- `supabase/`: existing SQL upgrade scripts; they are retained and have not been applied automatically.
 
-## لوحة الإدارة (admin.html)
-1. نفّذ `supabase/admin_upgrade.sql` كاملاً في Supabase → SQL Editor (بعد أخذ نسخة احتياطية).
-2. تأكد أن حسابك في جدول profiles دوره `super_admin` أو `admin`:
-   `update profiles set role='super_admin' where id='UUID-حسابك';`
-3. افتح `admin.html` وسجّل الدخول. زر «دخول الإدارة» في الموقع يفتحها.
-4. الأدوار: super_admin كل شيء · content_admin صوت ومحتوى · support_admin بحث وعرض ودعم.
-5. ملف PDF: ارفع ملف القضية الأصلي من مركز الطباعة؛ يُختم عليه الرقم وQR دون تغيير التصميم.
-
-## لوحة المحقق (الواجهة الجديدة)
-- `data.js` يحوي محتوى القضية 017 من «نسخة اللاعبين» (الشخصيات، الأدلة E-01…E-15، الخط الزمني، التعليمات، المراحل).
-- الظرفان المختومان (E-16 وE-17) يظهران مقفلين ولا يُكشف محتواهما.
-- `assets/` صور الشخصيات والخريطة وغلاف الملف مأخوذة من الـPDF نفسه.
-- نسبة التقدم تُحسب من الأدلة التي فتحها المحقق ومراحله، وتُحفظ على جهازه.
-- التسجيلات الصوتية والمحتوى الذي تنشره من لوحة الإدارة يظهران تلقائياً (بعد تنفيذ ملف SQL).
-
-## الإصدار 2.0 — واجهة جديدة
-- `index.html`: الصفحة الرئيسية بتصميم بوابتين (المحقق / المدير) وشريط الميزات.
-- `glass.css`: أزرار زجاجية شفافة بأسلوب iOS، وحركات دخول وتفاعل ناعمة (تحترم إعداد تقليل الحركة).
-- `admin.html`: لوحة المدير بتخطيط مركز القيادة (شريط جانبي، بانر، بطاقات، رسم مبيعات، حالة الأرقام).
-- الخطوط: Cairo للعناوين وIBM Plex Sans Arabic للنص (تُحمَّل من Google Fonts وتحتاج إنترنت).
-
-
-## إضافات إصدار الأكواد والمتجر والمحادثات
-- تسجيل المحقق أصبح بحساب بريد إلكتروني وكلمة مرور واسم كامل، مع كود قضية من 6 أرقام عند إنشاء الحساب فقط.
-- تسجيل الدخول اللاحق بالبريد وكلمة المرور دون إعادة إدخال الكود.
-- أضيف متجر المحقق وسلة الطلبات وسجل الطلبات، وقنوات المحادثة مع الإدارة ومجتمع المحققين.
-- أضيفت للمدير صفحات إدارة المنتجات وطلبات الشراء والمحادثات، وتوليد أكواد من 6 أرقام من مركز الأرقام ومركز ختم PDF.
-- **مهم:** قبل نشر التحديث، نفّذ ملف `supabase/additions_6digit_store_chat.sql` في Supabase SQL Editor بعد أخذ نسخة احتياطية. لا تشارك مفاتيح service_role.
-- **ملف PDF الأصلي:** لم يكن موجوداً داخل الأرشيف المرسل؛ لذلك لم أضع ملفاً بديلاً أو وهمياً. يلزم إرفاق PDF الأصلي حتى يتم ربط زر فتح الملف به.
-- تم الإبقاء على ملفات CSS والصور والتصميم الحالي دون تعديل.
+## Current scope
+The React foundation includes the cinematic loading sequence, bilingual Arabic/English authentication shell, headquarters navigation, and six-digit case-code RPC integration. Case content, profiles, realtime rooms, evidence workspace, voice, admin, and production deployment remain subsequent implementation stages and are not represented as completed features.
